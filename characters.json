@@ -1,0 +1,425 @@
+{
+ "source": "https://obradinn.fandom.com/wiki/Characters (registre d'équipage, sans les sorts)",
+ "characters": [
+  {
+   "n": 1,
+   "first": "Robert",
+   "last": "Witterel",
+   "role": "Captain",
+   "origin": "England"
+  },
+  {
+   "n": 2,
+   "first": "William",
+   "last": "Hoscut",
+   "role": "First Mate",
+   "origin": "Scotland"
+  },
+  {
+   "n": 3,
+   "first": "Edward",
+   "last": "Nichols",
+   "role": "Second Mate",
+   "origin": "England"
+  },
+  {
+   "n": 4,
+   "first": "Martin",
+   "last": "Perrott",
+   "role": "Third Mate",
+   "origin": "England"
+  },
+  {
+   "n": 5,
+   "first": "John",
+   "last": "Davies",
+   "role": "Fourth Mate",
+   "origin": "England"
+  },
+  {
+   "n": 6,
+   "first": "Alfred",
+   "last": "Klestil",
+   "role": "Bosun",
+   "origin": "Austria"
+  },
+  {
+   "n": 7,
+   "first": "Charles",
+   "last": "Miner",
+   "role": "Bosun's Mate",
+   "origin": "France"
+  },
+  {
+   "n": 8,
+   "first": "Henry",
+   "last": "Evans",
+   "role": "Surgeon",
+   "origin": "England"
+  },
+  {
+   "n": 9,
+   "first": "James",
+   "last": "Wallace",
+   "role": "Surgeon's Mate",
+   "origin": "England"
+  },
+  {
+   "n": 10,
+   "first": "Winston",
+   "last": "Smith",
+   "role": "Carpenter",
+   "origin": "America"
+  },
+  {
+   "n": 11,
+   "first": "Marcus",
+   "last": "Gibbs",
+   "role": "Carpenter's Mate",
+   "origin": "America"
+  },
+  {
+   "n": 12,
+   "first": "Thomas",
+   "last": "Sefton",
+   "role": "Cook",
+   "origin": "England"
+  },
+  {
+   "n": 13,
+   "first": "Emil",
+   "last": "O'Farrell",
+   "role": "Butcher",
+   "origin": "Ireland"
+  },
+  {
+   "n": 14,
+   "first": "Christian",
+   "last": "Wolff",
+   "role": "Gunner",
+   "origin": "Austria"
+  },
+  {
+   "n": 15,
+   "first": "Olus",
+   "last": "Wiater",
+   "role": "Gunner's Mate",
+   "origin": "Poland"
+  },
+  {
+   "n": 16,
+   "first": "Duncan",
+   "last": "McKay",
+   "role": "Purser",
+   "origin": "Scotland"
+  },
+  {
+   "n": 17,
+   "first": "Finley",
+   "last": "Dalton",
+   "role": "Helmsman",
+   "origin": "England"
+  },
+  {
+   "n": 18,
+   "first": "Edward",
+   "last": "Spratt",
+   "role": "Artist",
+   "origin": "England"
+  },
+  {
+   "n": 19,
+   "first": "Abigail",
+   "last": "Hoscut Witterel",
+   "role": "Passenger",
+   "origin": "Scotland"
+  },
+  {
+   "n": 20,
+   "first": "Nunzio",
+   "last": "Pasqua",
+   "role": "Passenger",
+   "origin": "Italy"
+  },
+  {
+   "n": 21,
+   "first": "Emily",
+   "last": "Jackson",
+   "role": "Passenger",
+   "origin": "England"
+  },
+  {
+   "n": 22,
+   "first": "Jane",
+   "last": "Bird",
+   "role": "Passenger",
+   "origin": "England"
+  },
+  {
+   "n": 23,
+   "first": "Bun-Lan",
+   "last": "Lim",
+   "role": "Passenger",
+   "origin": "Formosa"
+  },
+  {
+   "n": 24,
+   "first": "It-Beng",
+   "last": "Sia",
+   "role": "Passenger",
+   "origin": "Formosa"
+  },
+  {
+   "n": 25,
+   "first": "Chioh",
+   "last": "Tan",
+   "role": "Passenger",
+   "origin": "Formosa"
+  },
+  {
+   "n": 26,
+   "first": "Hok-Seng",
+   "last": "Lau",
+   "role": "Passenger",
+   "origin": "Formosa"
+  },
+  {
+   "n": 27,
+   "first": "Zungi",
+   "last": "Sathi",
+   "role": "Ship's Steward",
+   "origin": "India"
+  },
+  {
+   "n": 28,
+   "first": "Fillip",
+   "last": "Dahl",
+   "role": "Captain's Steward",
+   "origin": "Sweden"
+  },
+  {
+   "n": 29,
+   "first": "Paul",
+   "last": "Moss",
+   "role": "1st Mate's Steward",
+   "origin": "Wales"
+  },
+  {
+   "n": 30,
+   "first": "Samuel",
+   "last": "Galligan",
+   "role": "2nd Mate's Steward",
+   "origin": "Ireland"
+  },
+  {
+   "n": 31,
+   "first": "Roderick",
+   "last": "Andersen",
+   "role": "3rd Mate's Steward",
+   "origin": "England"
+  },
+  {
+   "n": 32,
+   "first": "Davey",
+   "last": "James",
+   "role": "4th Mate's Steward",
+   "origin": "England"
+  },
+  {
+   "n": 33,
+   "first": "Peter",
+   "last": "Milroy",
+   "role": "Midshipman",
+   "origin": "England"
+  },
+  {
+   "n": 34,
+   "first": "Thomas",
+   "last": "Lanke",
+   "role": "Midshipman",
+   "origin": "England"
+  },
+  {
+   "n": 35,
+   "first": "Charles",
+   "last": "Hershtik",
+   "role": "Midshipman",
+   "origin": "England"
+  },
+  {
+   "n": 36,
+   "first": "Omid",
+   "last": "Gul",
+   "role": "Topman",
+   "origin": "Persia"
+  },
+  {
+   "n": 37,
+   "first": "Timothy",
+   "last": "Butement",
+   "role": "Topman",
+   "origin": "Scotland"
+  },
+  {
+   "n": 38,
+   "first": "Huang",
+   "last": "Li",
+   "role": "Topman",
+   "origin": "China"
+  },
+  {
+   "n": 39,
+   "first": "Jie",
+   "last": "Zhang",
+   "role": "Topman",
+   "origin": "China"
+  },
+  {
+   "n": 40,
+   "first": "Li",
+   "last": "Hong",
+   "role": "Topman",
+   "origin": "China"
+  },
+  {
+   "n": 41,
+   "first": "Wei",
+   "last": "Lee",
+   "role": "Topman",
+   "origin": "China"
+  },
+  {
+   "n": 42,
+   "first": "Nicholas",
+   "last": "Botterill",
+   "role": "Topman",
+   "origin": "England"
+  },
+  {
+   "n": 43,
+   "first": "Maba",
+   "last": "",
+   "role": "Topman",
+   "origin": "New Guinea"
+  },
+  {
+   "n": 44,
+   "first": "Lewis",
+   "last": "Walker",
+   "role": "Topman",
+   "origin": "England"
+  },
+  {
+   "n": 45,
+   "first": "Leonid",
+   "last": "Volkov",
+   "role": "Topman",
+   "origin": "Russia"
+  },
+  {
+   "n": 46,
+   "first": "Alarcus",
+   "last": "Nikishin",
+   "role": "Seaman",
+   "origin": "Russia"
+  },
+  {
+   "n": 47,
+   "first": "Aleksei",
+   "last": "Toporov",
+   "role": "Seaman",
+   "origin": "Russia"
+  },
+  {
+   "n": 48,
+   "first": "Nathan",
+   "last": "Peters",
+   "role": "Seaman",
+   "origin": "England"
+  },
+  {
+   "n": 49,
+   "first": "Lars",
+   "last": "Linde",
+   "role": "Seaman",
+   "origin": "Denmark"
+  },
+  {
+   "n": 50,
+   "first": "John",
+   "last": "Naples",
+   "role": "Seaman",
+   "origin": "Wales"
+  },
+  {
+   "n": 51,
+   "first": "Renfred",
+   "last": "Rajub",
+   "role": "Seaman",
+   "origin": "India"
+  },
+  {
+   "n": 52,
+   "first": "Abraham",
+   "last": "Akbar",
+   "role": "Seaman",
+   "origin": "India"
+  },
+  {
+   "n": 53,
+   "first": "William",
+   "last": "Wasim",
+   "role": "Seaman",
+   "origin": "India"
+  },
+  {
+   "n": 54,
+   "first": "Soloman",
+   "last": "Syed",
+   "role": "Seaman",
+   "origin": "India"
+  },
+  {
+   "n": 55,
+   "first": "Hamadou",
+   "last": "Diom",
+   "role": "Seaman",
+   "origin": "Sierra Leone"
+  },
+  {
+   "n": 56,
+   "first": "Henry",
+   "last": "Brennan",
+   "role": "Seaman",
+   "origin": "England"
+  },
+  {
+   "n": 57,
+   "first": "Alexander",
+   "last": "Booth",
+   "role": "Seaman",
+   "origin": "England"
+  },
+  {
+   "n": 58,
+   "first": "Patrick",
+   "last": "O'Hagan",
+   "role": "Seaman",
+   "origin": "Ireland"
+  },
+  {
+   "n": 59,
+   "first": "George",
+   "last": "Shirley",
+   "role": "Seaman",
+   "origin": "England"
+  },
+  {
+   "n": 60,
+   "first": "Samuel",
+   "last": "Peters",
+   "role": "Seaman",
+   "origin": "England"
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+.DS_Store
+node_modules/
+board.backup.json
+*.tmp
+board.json

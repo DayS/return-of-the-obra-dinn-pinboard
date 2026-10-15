@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Obra Dinn — Tableau d'enquête</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#333319; --ink2:#55553a; --paper:#e5e5bf; --paper2:#f3f3df; --line:#b9b98c;
+  --red:#a3241b; --green:#3c6e35; --amber:#9a6f12; --blue:#2b4f7a;
+  --serif:"IM Fell English", Georgia, "Times New Roman", serif;
+  --sc:"IM Fell English SC", Georgia, serif;
+  --ui:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:var(--ink);font-family:var(--serif)}
+button,input,select,textarea{font:inherit;color:inherit}
+
+/* ---------- Barre d'outils ---------- */
+header{
+  height:52px;display:flex;align-items:center;gap:14px;padding:0 14px;
+  background:var(--ink);color:var(--paper);border-bottom:1px solid #000;
+}
+header h1{font-family:var(--sc);font-weight:400;font-size:20px;margin:0 6px 0 0;letter-spacing:.04em;white-space:nowrap}
+.group{display:flex;align-items:center;gap:2px;background:#22220f;border:1px solid #4a4a2c;border-radius:6px;padding:2px}
+.tb{
+  border:0;background:transparent;color:var(--paper);height:32px;min-width:32px;padding:0 10px;border-radius:4px;
+  cursor:pointer;font-family:var(--ui);font-size:13px;display:flex;align-items:center;gap:6px;white-space:nowrap
+}
+.tb:hover{background:#3d3d22}
+.tb.on{background:var(--paper);color:var(--ink)}
+.tb kbd{font-family:var(--ui);font-size:10px;opacity:.55;border:1px solid currentColor;border-radius:3px;padding:0 3px}
+.tb.ico{padding:0;width:32px;justify-content:center;font-size:16px}
+.tb:disabled{opacity:.35;cursor:default}
+.spacer{flex:1}
+.lang .tb{min-width:0;padding:0 9px;font-weight:600;letter-spacing:.04em}
+#status{font-family:var(--ui);font-size:12px;opacity:.8;white-space:nowrap;display:flex;align-items:center;gap:6px}
+#status i{width:8px;height:8px;border-radius:50%;background:#7a9a5a;display:inline-block}
+#status.pending i,#status.saving i{background:#c9a43a}
+#status.err i{background:#d24a3a}
+#status.err{color:#ffb4a8;opacity:1}
+
+/* ---------- Mise en page ---------- */
+main{display:flex;height:calc(100% - 52px)}
+#viewport{position:relative;flex:1;overflow:hidden;background:#2a2a14;cursor:grab;touch-action:none;
+  background-image:radial-gradient(#3a3a20 1px,transparent 1px);background-size:18px 18px}
+#viewport.panning{cursor:grabbing}
+#viewport.m-pin,#viewport.m-note{cursor:crosshair}
+#viewport.m-link{cursor:alias}
+#stage{position:absolute;left:0;top:0;transform-origin:0 0;--inv:1}
+#stage img{display:block;user-select:none;-webkit-user-drag:none;box-shadow:0 10px 50px #000a}
+#links{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+#badges,#pins,#notes{position:absolute;left:0;top:0;width:0;height:0}
+
+/* fils */
+#links path{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;transition:opacity .15s}
+#links .halo{stroke:var(--paper2);stroke-width:calc(6px * var(--f,1));opacity:.85}
+#links .yarn{stroke-width:calc(2.6px * max(var(--f,1), .6))}
+#links .dashed{stroke-dasharray:7 6}
+#links .dim{opacity:.12}
+#links .hl.yarn{stroke-width:calc(4px * max(var(--f,1), .6))}
+#links .rubber{stroke:var(--ink);stroke-width:2;stroke-dasharray:4 4}
+
+/* badges de liens */
+.badge{
+  position:absolute;transform:translate(-50%,-50%) scale(var(--inv));transform-origin:center;
+  display:flex;align-items:center;gap:4px;padding:2px 7px 2px 5px;border-radius:12px;
+  background:var(--paper2);border:2px solid var(--c);color:var(--ink);font-size:14px;line-height:18px;
+  white-space:nowrap;cursor:pointer;box-shadow:0 1px 3px #0005;transition:opacity .15s
+}
+.badge .ic{font-size:14px}
+.badge .arr{display:inline-block;color:var(--c);font-family:var(--ui);font-weight:700;font-size:13px}
+.badge.only{padding:2px 5px}
+.badge.dim{opacity:.15}
+.badge.sel{outline:3px solid var(--ink);outline-offset:1px}
+
+/* épingles */
+.pin{
+  position:absolute;width:30px;height:30px;transform:translate(-50%,-50%) scale(var(--inv));transform-origin:center;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  background:var(--pc,var(--paper2));color:var(--pt,var(--ink));border:2px solid var(--ink);
+  font-family:var(--ui);font-weight:700;font-size:12px;box-shadow:0 2px 0 #0006, 0 0 0 2px var(--paper2);
+}
+.pin::after{ /* reflet de punaise */
+  content:"";position:absolute;left:6px;top:4px;width:8px;height:5px;border-radius:50%;background:#fff7;transform:rotate(-30deg)
+}
+.pin.st-vivant{--pc:var(--green);--pt:#fff}
+.pin.st-mort{--pc:var(--red);--pt:#fff}
+.pin.st-disparu{--pc:var(--amber);--pt:#fff}
+.pin.ok{opacity:.7;filter:grayscale(.4);transition:opacity .15s}
+.pin.ok.sel,.pin.ok.hov,.pin.ok.from{opacity:1;filter:none}
+.list li.ok{opacity:.7}
+.pin.sel{outline:3px dashed var(--ink);outline-offset:6px}
+.pin.from{animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 2px var(--paper2),0 0 0 10px #a3241b55}}
+.pin .lbl{
+  position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--paper);font-family:var(--serif);font-weight:400;font-size:14px;
+  padding:1px 7px;border-radius:3px;white-space:nowrap;pointer-events:none
+}
+.pin .lbl small{opacity:.7;font-style:italic}
+.pin .lbl .fate{display:block;max-width:260px;overflow:hidden;text-overflow:ellipsis;font-size:12px;opacity:.85;text-align:center}
+
+/* notes volantes */
+.note{
+  position:absolute;width:max-content;max-width:210px;min-width:70px;transform:translate(-50%,0) scale(var(--ns,1)) rotate(var(--rot,-1.5deg));transform-origin:50% 0;
+  background:#f1e7a6;padding:18px 12px 12px;font-size:15px;line-height:1.3;white-space:pre-wrap;word-wrap:break-word;
+  box-shadow:2px 4px 10px #0006;cursor:move;color:#2a2a14;min-height:60px
+}
+.note::before{content:"";position:absolute;top:-6px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;
+  background:var(--red);box-shadow:0 2px 0 #0006}
+.note.c-rose{background:#f2c9c2}.note.c-bleu{background:#c8dbe6}.note.c-papier{background:var(--paper2)}
+.note.sel{outline:3px dashed var(--ink);outline-offset:4px}
+.note .empty{opacity:.5;font-style:italic}
+
+#marquee{position:absolute;border:1.5px dashed var(--paper2);outline:1px dashed var(--ink);background:#33331926;pointer-events:none;z-index:4}
+#marquee[hidden]{display:none}
+#hint{
+  position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:var(--ink);color:var(--paper);
+  padding:7px 14px;border-radius:20px;font-family:var(--ui);font-size:13px;pointer-events:none;opacity:.92;
+  box-shadow:0 2px 10px #0008;max-width:90%;text-align:center
+}
+#hint:empty{display:none}
+
+/* ---------- Panneau latéral ---------- */
+aside{
+  width:360px;flex:none;background:var(--paper);border-left:1px solid #000;overflow-y:auto;
+  background-image:repeating-linear-gradient(0deg,transparent 0 27px,#d6d6a8 27px 28px);
+}
+.panel{padding:18px 18px 40px}
+.panel h2{font-family:var(--sc);font-weight:400;font-size:24px;margin:0 0 2px;border-bottom:2px solid var(--ink);padding-bottom:4px;display:flex;align-items:baseline;gap:8px}
+.sec > summary{list-style:none;cursor:pointer;user-select:none;display:flex;align-items:baseline;gap:8px;
+  font-family:var(--sc);font-size:17px;margin:22px 0 8px;border-bottom:1px solid var(--ink2)}
+.sec > summary::-webkit-details-marker{display:none}
+.sec > summary::before{content:"▾";font-family:var(--ui);font-size:.75em;transition:transform .15s}
+.sec:not([open]) > summary::before{transform:rotate(-90deg)}
+.sec > summary:hover{color:var(--ink2)}
+.sec.big > summary{font-size:24px;margin:0 0 2px;border-bottom:2px solid var(--ink);padding-bottom:4px}
+.sec:not([open]) + .sec.big > summary,.sec.big:not([open]){margin-bottom:6px}
+.panel h3{font-family:var(--sc);font-weight:400;font-size:17px;margin:22px 0 8px;border-bottom:1px solid var(--ink2)}
+.sub{font-style:italic;color:var(--ink2);margin:4px 0 14px}
+label.f{display:block;margin:10px 0 0;font-size:13px;font-family:var(--ui);text-transform:uppercase;letter-spacing:.06em;color:var(--ink2)}
+.field{width:100%;margin-top:3px;padding:6px 8px;border:1px solid var(--ink2);background:var(--paper2);border-radius:3px;font-size:16px}
+textarea.field{min-height:90px;resize:vertical;line-height:1.35}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.row .narrow{flex:0 0 76px}
+.narrow .field{font-family:var(--ui);font-size:15px}
+@media (max-width:1500px){.tb kbd{display:none}#status span{display:none}}
+@media (max-width:1400px){header h1{display:none}}
+@media (max-width:1340px){#modes .tb span,#openRoster span{display:none}}
+.check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:16px;cursor:pointer}
+.btn{
+  border:1px solid var(--ink);background:var(--paper2);padding:6px 12px;border-radius:3px;cursor:pointer;font-family:var(--ui);font-size:13px
+}
+.btn:hover{background:#fff}
+.btn.danger{color:var(--red);border-color:var(--red)}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.type{
+  display:flex;align-items:center;gap:6px;padding:5px 7px;border:1px solid var(--line);border-left:4px solid var(--c);
+  background:var(--paper2);cursor:pointer;font-size:14px;border-radius:3px;text-align:left
+}
+.type.on{border-color:var(--ink);border-left-color:var(--c);box-shadow:inset 0 0 0 1px var(--ink);background:#fff}
+.lk{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px dotted var(--line);font-size:15px}
+.lk .ic{width:22px;text-align:center}
+.lk a{cursor:pointer;text-decoration:underline;text-decoration-color:var(--line)}
+.lk .txt{flex:1}
+.lk .x{border:0;background:none;cursor:pointer;color:var(--red);font-size:16px;padding:0 4px}
+.lk em{color:var(--ink2)}
+.list{margin:0;padding:0;list-style:none}
+.list li{display:flex;align-items:center;gap:8px;padding:5px 4px;cursor:pointer;border-bottom:1px dotted var(--line)}
+.list li:hover{background:#fff8}
+.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink);flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--ui);font-size:9px;font-weight:700;background:var(--paper2)}
+.dot.st-vivant{background:var(--green);color:#fff}.dot.st-mort{background:var(--red);color:#fff}.dot.st-disparu{background:var(--amber);color:#fff}
+.list .nm{flex:1}.list .rl{font-style:italic;color:var(--ink2);font-size:14px}
+.legend{display:grid;grid-template-columns:1fr;gap:3px}
+.legend label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px}
+.legend .sw{width:22px;height:0;border-top:3px solid var(--c)}
+.legend .sw.dashed{border-top-style:dashed}
+.muted{color:var(--ink2);font-style:italic;font-size:14px}
+.kbd{font-family:var(--ui);font-size:12px;color:var(--ink2);line-height:1.8}
+.kbd b{display:inline-block;min-width:22px;padding:0 4px;border:1px solid var(--ink2);border-radius:3px;text-align:center;font-weight:600;background:var(--paper2)}
+.swatches{display:flex;gap:6px;margin-top:4px}
+.swatches button{width:28px;height:28px;border:1px solid var(--ink);border-radius:3px;cursor:pointer}
+.swatches button.on{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--ink)}
+.pin.unk{border-style:dashed;font-style:italic}
+/* Zoom arrière : on n'affiche plus que l'essentiel ; les détails reviennent au survol / à la sélection */
+#stage.compact .pin:not(.sel):not(.hov) .lbl,
+#stage.compact .badge:not(.sel):not(:hover) span:not(.ic):not(.arr){display:none}
+#stage.compact .badge{padding:2px 4px}
+#stage.compact .pin:hover,#stage.compact .badge:hover{z-index:5}
+#annScale{width:70px;accent-color:var(--paper);margin:0 6px}
+
+/* ---------- Sélecteur avec recherche ---------- */
+.combo{position:relative}
+.combo-list{
+  position:absolute;z-index:20;left:0;right:0;top:calc(100% + 2px);max-height:340px;overflow-y:auto;margin:0;padding:0;list-style:none;
+  background:var(--paper2);border:1px solid var(--ink);border-radius:3px;box-shadow:0 8px 24px #0005
+}
+.combo-list li{display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;border-bottom:1px dotted var(--line);font-size:15px}
+.combo-list li.act{background:var(--ink);color:var(--paper)}
+.combo-list li .n{font-family:var(--ui);font-size:11px;font-weight:700;width:22px;text-align:right;flex:none;opacity:.8}
+.combo-list li .who{flex:1;min-width:0}
+.combo-list li .who small{display:block;font-style:italic;opacity:.75;font-size:13px}
+.combo-list li .tag{font-family:var(--ui);font-size:10px;padding:1px 5px;border:1px solid currentColor;border-radius:8px;opacity:.75;white-space:nowrap}
+.combo-list li.none{font-style:italic}
+.combo-list .empty{padding:8px;font-style:italic;cursor:default}
+
+/* ---------- Hypothèses ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:5px 0 6px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 2px 2px 8px;border:1px dashed var(--ink2);border-radius:12px;background:var(--paper2);font-size:14px}
+.chip b{font-family:var(--ui);font-size:11px}
+.chip small{font-style:italic;color:var(--ink2)}
+.chip button{border:0;background:none;cursor:pointer;padding:0 4px;font-size:15px;color:var(--ink);line-height:1}
+.chip button:hover{background:#0001;border-radius:8px}
+.chip button[data-unhyp]{color:var(--red)}
+.idrow{display:flex;gap:6px;align-items:flex-start}.idrow .combo{flex:1}
+.idrow .btn{margin-top:3px;white-space:nowrap}
+.pin .hc{position:absolute;top:-7px;right:-9px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:var(--ink);color:var(--paper);
+  font-size:9px;font-style:normal;line-height:15px;text-align:center}
+
+/* ---------- Aperçu d'épingle (registre) ---------- */
+#peek{position:fixed;z-index:60;pointer-events:none;background:var(--paper2);border:2px solid var(--ink);border-radius:4px;box-shadow:0 10px 30px #0007;overflow:hidden}
+#peek[hidden]{display:none}
+#peek .peek-img{position:relative;width:300px;height:220px;background:#fff url("dessin.jpg") no-repeat}
+#peek .peek-img::after{content:"";position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+  border:3px solid var(--red);box-shadow:0 0 0 2px #fffc}
+#peek .peek-cap{padding:5px 9px;font-size:15px;border-top:1px solid var(--ink)}
+#peek .peek-cap b{font-family:var(--ui);font-size:12px}
+#peek .peek-cap small{font-style:italic;color:var(--ink2)}
+.pchip{border:1px solid var(--ink);background:var(--paper2);border-radius:11px;padding:1px 8px;margin:1px 3px 1px 0;cursor:pointer;font-family:var(--ui);font-size:12px}
+.pchip.hyp{border-style:dashed;color:var(--ink2)}
+.pchip:hover{background:var(--ink);color:var(--paper)}
+.r-table td small.hyp{display:block;font-style:italic;color:var(--ink2);font-variant:normal;font-size:14px}
+
+/* ---------- Vue registre ---------- */
+#roster{position:absolute;inset:52px 0 0 0;z-index:30;background:var(--paper);display:flex;flex-direction:column}
+#roster[hidden]{display:none}
+.r-head{display:flex;align-items:center;gap:12px;padding:14px 22px 10px;border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.r-head h2{font-family:var(--sc);font-weight:400;font-size:26px;margin:0;flex:1}
+.r-filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:12px 22px;border-bottom:1px solid var(--line);background:var(--paper2)}
+.r-filters label{display:flex;flex-direction:column;font-family:var(--ui);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);gap:3px}
+.r-filters .field{font-size:15px;padding:5px 7px;margin:0;width:auto}
+.r-filters .grow{flex:1;min-width:220px}
+.r-filters .grow input.field{flex:1;width:auto}
+.r-search select.field{flex:none}
+.r-filters .grow .r-search{width:100%}
+.r-search{display:flex;gap:0}
+.r-search select{border-left:0;border-radius:0 3px 3px 0}
+.r-search input{border-radius:3px 0 0 3px}
+.r-count{font-family:var(--ui);font-size:13px;color:var(--ink2);white-space:nowrap}
+.r-body{flex:1;overflow:auto;padding:0 22px 30px}
+.r-table{width:100%;border-collapse:collapse;font-size:16px}
+.r-table th{position:sticky;top:0;background:var(--paper);text-align:left;font-family:var(--ui);font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink2);padding:10px 8px 6px;border-bottom:1px solid var(--ink);cursor:pointer;user-select:none;white-space:nowrap}
+.r-table th.sorted{color:var(--ink)}
+.r-table td{padding:6px 8px;border-bottom:1px dotted var(--line);vertical-align:middle}
+.r-table tr.pinned{cursor:pointer}
+.r-table tr.pinned:hover td{background:#fff9}
+.r-table tr.unpinned td{color:var(--ink2)}
+.r-table td.num{font-family:var(--ui);font-size:12px;font-weight:700;width:34px}
+.r-table td.last{font-variant:small-caps;font-size:17px}
+.r-table td.fate{font-style:italic;max-width:320px}
+.r-table mark{background:#e6c95c;color:inherit;padding:0 1px}
+</style>
+</head>
+<body>
+<header>
+  <h1 data-i18n="h1">Obra Dinn · Enquête</h1>
+  <div class="group" id="modes">
+    <button class="tb" data-mode="select" data-i18n-title="tip.select">☚ <span data-i18n="mode.select"></span> <kbd>V</kbd></button>
+    <button class="tb" data-mode="pin" data-i18n-title="tip.pin">📍 <span data-i18n="mode.pin"></span> <kbd>P</kbd></button>
+    <button class="tb" data-mode="link" data-i18n-title="tip.link">🧶 <span data-i18n="mode.link"></span> <kbd>L</kbd></button>
+    <button class="tb" data-mode="note" data-i18n-title="tip.note">🗒 <span data-i18n="mode.note"></span> <kbd>N</kbd></button>
+  </div>
+  <div class="group" id="linktypes" data-i18n-title="tip.linktypes"></div>
+  <div class="group"><button class="tb" id="openRoster" data-i18n-title="tip.roster">📜 <span data-i18n="roster.btn"></span> <kbd>R</kbd></button></div>
+  <div class="spacer"></div>
+  <div class="group">
+    <button class="tb ico" id="undo" data-i18n-title="tip.undo">↶</button>
+    <button class="tb ico" id="redo" data-i18n-title="tip.redo">↷</button>
+  </div>
+  <div class="group" data-i18n-title="tip.annScale">
+    <span class="tb ico" style="cursor:default;font-family:var(--serif)">Aa</span>
+    <input type="range" id="annScale" min="0.5" max="1.6" step="0.1">
+  </div>
+  <div class="group">
+    <button class="tb ico" id="zout" data-i18n-title="tip.zout">−</button>
+    <button class="tb" id="zfit" data-i18n-title="tip.zfit" data-i18n="zfit"></button>
+    <button class="tb ico" id="zin" data-i18n-title="tip.zin">+</button>
+  </div>
+  <div class="group lang" id="langSwitch" data-i18n-title="tip.lang">
+    <button class="tb" data-lang="fr">FR</button><button class="tb" data-lang="en">EN</button>
+  </div>
+  <div id="status"><i></i><span></span></div>
+</header>
+<main>
+  <div id="viewport">
+    <div id="stage">
+      <img id="img" src="dessin.jpg" data-i18n-alt="img.alt" alt="">
+      <svg id="links"></svg>
+      <div id="notes"></div>
+      <div id="badges"></div>
+      <div id="pins"></div>
+    </div>
+    <div id="marquee" hidden></div>
+    <div id="hint"></div>
+  </div>
+  <aside><div class="panel" id="panel"></div></aside>
+</main>
+
+<div id="roster" hidden>
+  <div class="r-head">
+    <h2 data-i18n="roster.title"></h2>
+    <span class="r-count" id="rCount"></span>
+    <button class="btn" id="rReset" data-i18n="roster.reset"></button>
+    <button class="btn primary" id="rClose"><span data-i18n="close"></span> <span style="opacity:.6" data-i18n="key.esc"></span></button>
+  </div>
+  <div class="r-filters">
+    <label class="grow"><span data-i18n="roster.search"></span>
+      <span class="r-search">
+        <input class="field" id="rQ" data-i18n-ph="roster.searchPh" autocomplete="off">
+        <select class="field" id="rIn">
+          <option value="name" data-i18n="in.name"></option>
+          <option value="first" data-i18n="in.first"></option>
+          <option value="last" data-i18n="in.last"></option>
+          <option value="all" data-i18n="in.all"></option>
+        </select>
+      </span>
+    </label>
+    <label><span data-i18n="f.role"></span><select class="field" id="rRole"></select></label>
+    <label><span data-i18n="f.origin"></span><select class="field" id="rOrigin"></select></label>
+    <label><span data-i18n="f.status"></span><select class="field" id="rStatus"></select></label>
+    <label><span data-i18n="f.pinned"></span><select class="field" id="rPinned">
+      <option value="" data-i18n="opt.all"></option><option value="id" data-i18n="opt.pinId"></option><option value="hyp" data-i18n="opt.pinHyp"></option>
+      <option value="any" data-i18n="opt.pinAny"></option><option value="no" data-i18n="opt.pinNo"></option></select></label>
+    <label><span data-i18n="f.conf"></span><select class="field" id="rConf">
+      <option value="" data-i18n="opt.all"></option><option value="yes" data-i18n="opt.confYes"></option><option value="no" data-i18n="opt.confNo"></option></select></label>
+  </div>
+  <div class="r-body"><table class="r-table"><thead id="rHead"></thead><tbody id="rBody"></tbody></table></div>
+</div>
+<div id="peek" hidden><div class="peek-img"></div><div class="peek-cap"></div></div>
+
+<script>
+/* ======================================================================
+   Traductions (FR / EN)
+   ====================================================================== */
+const pl = (n, w, p = w + 's') => `${n} ${n > 1 ? p : w}`;
+const I18N = {
+  fr: {
+    'app.title': 'Obra Dinn — Tableau d’enquête', h1: 'Obra Dinn · Enquête',
+    'mode.select': 'Sélection', 'mode.pin': 'Personnage', 'mode.link': 'Lien', 'mode.note': 'Note',
+    'tip.select': 'Sélectionner / déplacer (V)', 'tip.pin': 'Épingler un personnage (P)', 'tip.link': 'Relier deux personnages (L)',
+    'tip.note': 'Poser une note (N)', 'tip.linktypes': 'Type du prochain lien', 'tip.roster': 'Liste des personnages (R)',
+    'tip.undo': 'Annuler (⌘Z)', 'tip.redo': 'Rétablir (⇧⌘Z)', 'tip.annScale': 'Taille des annotations',
+    'tip.zout': 'Dézoomer', 'tip.zin': 'Zoomer', 'tip.zfit': 'Tout afficher (F)', zfit: 'Ajuster', 'tip.lang': 'Langue de l’interface',
+    'roster.btn': 'Registre', 'img.alt': 'Illustration de l’équipage de l’Obra Dinn',
+    'status.loading': 'Chargement…', 'status.modified': 'Modifié…', 'status.saving': 'Enregistrement…',
+    'status.saved': 'Enregistré dans board.json', 'status.saveErr': 'Erreur d’enregistrement — le serveur tourne ?',
+    'status.loaded': 'Chargé depuis board.json', 'status.noServer': 'Serveur introuvable — lancez « node server.js »',
+    'roster.title': 'Registre d’équipage', 'roster.reset': 'Réinitialiser les filtres', close: 'Fermer', 'key.esc': 'Échap',
+    'roster.search': 'Rechercher', 'roster.searchPh': 'ex. Peters, Henry, 34…',
+    'in.name': 'Prénom ou nom', 'in.first': 'Prénom', 'in.last': 'Nom', 'in.all': 'Partout',
+    'f.role': 'Fonction', 'f.origin': 'Origine', 'f.status': 'Statut', 'f.pinned': 'Épinglé', 'f.conf': 'Confirmé',
+    'opt.all': 'Tous', 'opt.allF': 'Toutes', 'opt.pinnedYes': 'Épinglés', 'opt.pinnedNo': 'Non épinglés',
+    'opt.confYes': 'Confirmés', 'opt.confNo': 'Non confirmés', 'opt.unidentified': '— Non identifiés —',
+    'col.first': 'Prénom', 'col.last': 'Nom', 'col.role': 'Fonction', 'col.origin': 'Origine', 'col.status': 'Statut', 'col.fate': 'Sort',
+    'roster.count': (p) => `${p.n} / ${p.total} affiché${p.n > 1 ? 's' : ''}`,
+    'roster.view': 'Voir', 'roster.pin': '📍 Épingler', 'roster.none': 'Aucun personnage ne correspond aux filtres.',
+    'lt.famille': 'Famille / frères', 'lt.rang': 'Même rang', 'lt.groupe': 'Même groupe', 'lt.ami': 'Amis / alliés',
+    'lt.conflit': 'Conflit', 'lt.tue': 'A tué', 'lt.tue.out': 'a tué', 'lt.tue.in': 'tué par',
+    'lt.sert': 'Sert / garde', 'lt.sert.out': 'sert', 'lt.sert.in': 'servi par',
+    'lt.scene': 'Vus ensemble', 'lt.doute': 'Hypothèse', 'lt.texte': 'Texte libre',
+    'st.inconnu': 'Inconnu', 'st.vivant': 'Vivant', 'st.mort': 'Mort', 'st.disparu': 'Disparu / en fuite',
+    unknown: 'Inconnu', 'note.empty': 'Note vide', unidentified: 'Non identifié',
+    'p.identity': 'Identité (registre)', 'p.identityPh': 'Rechercher par n°, prénom, nom, fonction…',
+    'p.status': 'Statut',
+    'p.fate': 'Sort / cause', 'p.fatePh': 'ex. Tué par … avec un fusil', 'p.confirmed': 'Sort confirmé par le jeu',
+    'p.notes': 'Indices & notes', 'p.notesPh': 'Accent, chapitre, où on le voit, tatouage…',
+    'p.links': 'Liens', 'p.noLinks': 'Aucun lien. Utilisez « Relier à… » puis cliquez une autre épingle.',
+    'p.linkTo': '🧶 Relier à…', del: 'Supprimer', edit: 'Modifier',
+    'link.title': 'Lien', 'link.type': 'Type', 'link.text': 'Texte du lien', 'link.textPh': 'ex. au mousquet, cousins, même cabine…',
+    'link.swap': '⇄ Inverser le sens', quote: (p) => `« ${p.s} »`,
+    'note.text': 'Texte', 'note.color': 'Couleur', 'note.size': 'Taille', 'note.smaller': 'Plus petite', 'note.bigger': 'Plus grande',
+    'color.jaune': 'jaune', 'color.rose': 'rose', 'color.bleu': 'bleu', 'color.papier': 'papier',
+    'ov.title': 'Épingles',
+    'ov.stats': (p) => `${pl(p.pins, 'épinglé')} · ${p.ids}/${p.total} identifiés · ${pl(p.conf, 'confirmé')} · ${pl(p.dead, 'mort')} · ${pl(p.alive, 'vivant')}`,
+    'ov.filterPh': 'Filtrer les épingles…', 'ov.roster': '📜 Registre complet', 'ov.noResult': 'Aucun résultat.',
+    'ov.empty': 'Choisissez « Personnage » puis cliquez sur un visage du dessin.',
+    'ov.threads': 'Fils affichés', 'ov.showNames': 'Afficher les noms sous les épingles', 'ov.showConfLinks': 'Afficher les liens entre personnages confirmés', 'ov.showFate': 'Afficher le sort sous le nom', 'ov.shortcuts': 'Raccourcis',
+    'ov.keys': `<b>V</b> sélection · <b>P</b> personnage · <b>L</b> lien · <b>N</b> note · <b>R</b> registre<br>
+      <b>Molette</b> zoom · <b>glisser</b> ou <b>Espace</b>+glisser pour se déplacer<br>
+      <b>⌫</b> supprimer la sélection · <b>Échap</b> annuler · <b>F</b> tout afficher<br>
+      <b>⌘Z</b> annuler · <b>⇧⌘Z</b> rétablir · <b>Alt</b>+glisser une épingle = créer un lien<br>
+      <b>⌘</b>+clic ou <b>⇧</b>+glisser = sélection multiple · <b>⌘A</b> tout sélectionner<br>
+      <b>⌘C</b> / <b>⌘X</b> / <b>⌘V</b> copier, couper, coller une note`,
+    'm.title': (p) => `${p.n} épingles sélectionnées`, 'm.unsel': 'Retirer de la sélection', 'm.mixed': '— valeurs différentes —',
+    'm.apply': 'Appliquer', 'm.hypPh': 'Ajouter une hypothèse à toutes…', 'm.hypAll': 'Ajouter à toutes', 'm.hypNone': 'Retirer de toutes',
+    'm.del': (p) => `Supprimer les ${p.n}`, 'm.hint': 'Les modifications s’appliquent à toutes les épingles sélectionnées.',
+    'hint.pinChar': (p) => `Cliquez sur le dessin pour épingler ${p.who}. Échap pour annuler.`,
+    'hint.pin': 'Cliquez sur un personnage du dessin pour l’épingler.',
+    'hint.linkFrom': (p) => `Depuis « ${p.who} » : cliquez l’épingle à relier (${p.type}). Échap pour annuler.`,
+    'hint.link': (p) => `Lien « ${p.type} » : cliquez une première épingle.`,
+    'hint.note': 'Cliquez où poser une note.',
+    'combo.none': '— Non identifié —', 'combo.current': 'actuel', 'combo.already': 'déjà épinglé',
+    'combo.empty': 'Aucun personnage ne correspond.', 'combo.hyp': 'hypothèse',
+    'p.hyps': 'Hypothèses', 'p.hypsPh': 'Ajouter une hypothèse…', 'p.toHyp': '↓ En hypothèse',
+    'p.toHypTip': 'Remettre l’identité parmi les hypothèses', 'hyp.promote': 'Retenir comme identité', 'hyp.remove': 'Retirer',
+    'col.pins': 'Épingles', 'opt.pinId': 'Identifiés', 'opt.pinHyp': 'En hypothèse', 'opt.pinAny': 'Avec épingle', 'opt.pinNo': 'Sans épingle',
+    'chip.id': (p) => `Épingle ${p.tag} — identité retenue`, 'chip.pin': (p) => `Épingle ${p.tag}`, 'chip.hyp': (p) => `Épingle ${p.tag} — hypothèse`,
+  },
+  en: {
+    'app.title': 'Obra Dinn — Investigation Board', h1: 'Obra Dinn · Investigation',
+    'mode.select': 'Select', 'mode.pin': 'Character', 'mode.link': 'Link', 'mode.note': 'Note',
+    'tip.select': 'Select / move (V)', 'tip.pin': 'Pin a character (P)', 'tip.link': 'Link two characters (L)',
+    'tip.note': 'Add a note (N)', 'tip.linktypes': 'Next link type', 'tip.roster': 'Character list (R)',
+    'tip.undo': 'Undo (⌘Z)', 'tip.redo': 'Redo (⇧⌘Z)', 'tip.annScale': 'Annotation size',
+    'tip.zout': 'Zoom out', 'tip.zin': 'Zoom in', 'tip.zfit': 'Show all (F)', zfit: 'Fit', 'tip.lang': 'Interface language',
+    'roster.btn': 'Roster', 'img.alt': 'Illustration of the Obra Dinn crew',
+    'status.loading': 'Loading…', 'status.modified': 'Modified…', 'status.saving': 'Saving…',
+    'status.saved': 'Saved to board.json', 'status.saveErr': 'Save failed — is the server running?',
+    'status.loaded': 'Loaded from board.json', 'status.noServer': 'Server not found — run “node server.js”',
+    'roster.title': 'Crew roster', 'roster.reset': 'Reset filters', close: 'Close', 'key.esc': 'Esc',
+    'roster.search': 'Search', 'roster.searchPh': 'e.g. Peters, Henry, 34…',
+    'in.name': 'First or last name', 'in.first': 'First name', 'in.last': 'Last name', 'in.all': 'Everywhere',
+    'f.role': 'Role', 'f.origin': 'Origin', 'f.status': 'Status', 'f.pinned': 'Pinned', 'f.conf': 'Confirmed',
+    'opt.all': 'All', 'opt.allF': 'All', 'opt.pinnedYes': 'Pinned', 'opt.pinnedNo': 'Not pinned',
+    'opt.confYes': 'Confirmed', 'opt.confNo': 'Not confirmed', 'opt.unidentified': '— Unidentified —',
+    'col.first': 'First name', 'col.last': 'Last name', 'col.role': 'Role', 'col.origin': 'Origin', 'col.status': 'Status', 'col.fate': 'Fate',
+    'roster.count': (p) => `${p.n} / ${p.total} shown`,
+    'roster.view': 'View', 'roster.pin': '📍 Pin', 'roster.none': 'No character matches the filters.',
+    'lt.famille': 'Family / brothers', 'lt.rang': 'Same rank', 'lt.groupe': 'Same group', 'lt.ami': 'Friends / allies',
+    'lt.conflit': 'Conflict', 'lt.tue': 'Killed', 'lt.tue.out': 'killed', 'lt.tue.in': 'killed by',
+    'lt.sert': 'Serves / guards', 'lt.sert.out': 'serves', 'lt.sert.in': 'served by',
+    'lt.scene': 'Seen together', 'lt.doute': 'Hypothesis', 'lt.texte': 'Free text',
+    'st.inconnu': 'Unknown', 'st.vivant': 'Alive', 'st.mort': 'Dead', 'st.disparu': 'Missing / escaped',
+    unknown: 'Unknown', 'note.empty': 'Empty note', unidentified: 'Unidentified',
+    'p.identity': 'Identity (roster)', 'p.identityPh': 'Search by #, first name, last name, role…',
+    'p.status': 'Status',
+    'p.fate': 'Fate / cause', 'p.fatePh': 'e.g. Killed by … with a gun', 'p.confirmed': 'Fate confirmed by the game',
+    'p.notes': 'Clues & notes', 'p.notesPh': 'Accent, chapter, where they appear, tattoo…',
+    'p.links': 'Links', 'p.noLinks': 'No links. Use “Link to…” then click another pin.',
+    'p.linkTo': '🧶 Link to…', del: 'Delete', edit: 'Edit',
+    'link.title': 'Link', 'link.type': 'Type', 'link.text': 'Link text', 'link.textPh': 'e.g. with a musket, cousins, same cabin…',
+    'link.swap': '⇄ Reverse direction', quote: (p) => `“${p.s}”`,
+    'note.text': 'Text', 'note.color': 'Color', 'note.size': 'Size', 'note.smaller': 'Smaller', 'note.bigger': 'Bigger',
+    'color.jaune': 'yellow', 'color.rose': 'pink', 'color.bleu': 'blue', 'color.papier': 'paper',
+    'ov.title': 'Pins',
+    'ov.stats': (p) => `${p.pins} pinned · ${p.ids}/${p.total} identified · ${p.conf} confirmed · ${p.dead} dead · ${p.alive} alive`,
+    'ov.filterPh': 'Filter pins…', 'ov.roster': '📜 Full roster', 'ov.noResult': 'No results.',
+    'ov.empty': 'Choose “Character”, then click a face on the drawing.',
+    'ov.threads': 'Visible threads', 'ov.showNames': 'Show names under pins', 'ov.showConfLinks': 'Show links between confirmed characters', 'ov.showFate': 'Show fate under the name', 'ov.shortcuts': 'Shortcuts',
+    'ov.keys': `<b>V</b> select · <b>P</b> character · <b>L</b> link · <b>N</b> note · <b>R</b> roster<br>
+      <b>Wheel</b> zoom · <b>drag</b> or <b>Space</b>+drag to pan<br>
+      <b>⌫</b> delete selection · <b>Esc</b> cancel · <b>F</b> show all<br>
+      <b>⌘Z</b> undo · <b>⇧⌘Z</b> redo · <b>Alt</b>+drag a pin = create a link<br>
+      <b>⌘</b>+click or <b>⇧</b>+drag = multiple selection · <b>⌘A</b> select all<br>
+      <b>⌘C</b> / <b>⌘X</b> / <b>⌘V</b> copy, cut, paste a note`,
+    'm.title': (p) => `${p.n} pins selected`, 'm.unsel': 'Remove from selection', 'm.mixed': '— mixed values —',
+    'm.apply': 'Apply', 'm.hypPh': 'Add a hypothesis to all…', 'm.hypAll': 'Add to all', 'm.hypNone': 'Remove from all',
+    'm.del': (p) => `Delete all ${p.n}`, 'm.hint': 'Changes apply to every selected pin.',
+    'hint.pinChar': (p) => `Click the drawing to pin ${p.who}. Esc to cancel.`,
+    'hint.pin': 'Click a character on the drawing to pin them.',
+    'hint.linkFrom': (p) => `From “${p.who}”: click the pin to link (${p.type}). Esc to cancel.`,
+    'hint.link': (p) => `“${p.type}” link: click a first pin.`,
+    'hint.note': 'Click where to put a note.',
+    'combo.none': '— Unidentified —', 'combo.current': 'current', 'combo.already': 'already pinned',
+    'combo.empty': 'No character matches.', 'combo.hyp': 'hypothesis',
+    'p.hyps': 'Hypotheses', 'p.hypsPh': 'Add a hypothesis…', 'p.toHyp': '↓ To hypotheses',
+    'p.toHypTip': 'Move the identity back to the hypotheses', 'hyp.promote': 'Set as identity', 'hyp.remove': 'Remove',
+    'col.pins': 'Pins', 'opt.pinId': 'Identified', 'opt.pinHyp': 'As hypothesis', 'opt.pinAny': 'With a pin', 'opt.pinNo': 'No pin',
+    'chip.id': (p) => `Pin ${p.tag} — identity`, 'chip.pin': (p) => `Pin ${p.tag}`, 'chip.hyp': (p) => `Pin ${p.tag} — hypothesis`,
+  },
+};
+// Fonctions et origines du registre (données en anglais) → français
+const ROLE_FR = {
+  'Captain': 'Capitaine', 'First Mate': 'Premier lieutenant', 'Second Mate': 'Deuxième lieutenant',
+  'Third Mate': 'Troisième lieutenant', 'Fourth Mate': 'Quatrième lieutenant', 'Bosun': 'Maître d’équipage',
+  "Bosun's Mate": 'Second maître d’équipage', 'Surgeon': 'Chirurgien', "Surgeon's Mate": 'Aide-chirurgien',
+  'Carpenter': 'Charpentier', "Carpenter's Mate": 'Aide-charpentier', 'Cook': 'Cuisinier', 'Butcher': 'Boucher',
+  'Gunner': 'Canonnier', "Gunner's Mate": 'Aide-canonnier', 'Purser': 'Commissaire de bord', 'Helmsman': 'Timonier',
+  'Artist': 'Artiste', 'Passenger': 'Passager', "Ship's Steward": 'Steward du navire', "Captain's Steward": 'Steward du capitaine',
+  "1st Mate's Steward": 'Steward du 1er lieutenant', "2nd Mate's Steward": 'Steward du 2e lieutenant',
+  "3rd Mate's Steward": 'Steward du 3e lieutenant', "4th Mate's Steward": 'Steward du 4e lieutenant',
+  'Midshipman': 'Aspirant', 'Topman': 'Gabier', 'Seaman': 'Matelot',
+};
+const ORIGIN_FR = {
+  'America': 'Amérique', 'Austria': 'Autriche', 'China': 'Chine', 'Denmark': 'Danemark', 'England': 'Angleterre',
+  'Formosa': 'Formose', 'France': 'France', 'India': 'Inde', 'Ireland': 'Irlande', 'Italy': 'Italie',
+  'New Guinea': 'Nouvelle-Guinée', 'Persia': 'Perse', 'Poland': 'Pologne', 'Russia': 'Russie', 'Scotland': 'Écosse',
+  'Sierra Leone': 'Sierra Leone', 'Sweden': 'Suède', 'Wales': 'Pays de Galles',
+};
+let lang = 'fr';
+function tr(key, params = {}) {
+  const v = I18N[lang][key] ?? I18N.fr[key] ?? key;
+  return typeof v === 'function' ? v(params) : v;
+}
+const roleL = (r) => (lang === 'fr' ? ROLE_FR[r] || r : r || '');
+const originL = (o) => (lang === 'fr' ? ORIGIN_FR[o] || o : o || '');
+// Texte cherchable dans les deux langues
+const charHay = (c) => `${c.first} ${c.last} ${c.role} ${ROLE_FR[c.role] || ''} ${c.origin} ${ORIGIN_FR[c.origin] || ''}`;
+
+function applyStaticI18n() {
+  document.documentElement.lang = lang;
+  document.title = tr('app.title');
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = tr(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = tr(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = tr(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-alt]').forEach((el) => { el.alt = tr(el.dataset.i18nAlt); });
+  document.querySelectorAll('#langSwitch [data-lang]').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
+}
+function setLang(l) {
+  lang = l; prefs.lang = l; savePrefs();
+  applyStaticI18n();
+  setStatus(lastStatus.kind, lastStatus.key);
+  renderAll();
+  if (!roster.hidden) { fillRosterSelects(); renderRoster(); }
+}
+
+/* ======================================================================
+   Modèle
+   ====================================================================== */
+const LT = {
+  famille: { icon: '👬', color: '#3c6e35' },
+  rang:    { icon: '⚓', color: '#2b4f7a' },
+  groupe:  { icon: '🏳️', color: '#6a4c93' },
+  ami:     { icon: '🤝', color: '#2f7f7a' },
+  conflit: { icon: '⚔️', color: '#b85c00' },
+  tue:     { icon: '🗡️', color: '#a3241b', directed: true },
+  sert:    { icon: '👑', color: '#9a6f12', directed: true },
+  scene:   { icon: '👁️', color: '#55553a' },
+  doute:   { icon: '❓', color: '#7a7a6a', dashed: true },
+  texte:   { icon: '✎', color: '#333319' },
+};
+// Libellés traduits à la volée ; `out` / `in` = formulation selon le sens du lien
+for (const [k, v] of Object.entries(LT)) {
+  Object.defineProperty(v, 'label', { get: () => tr('lt.' + k) });
+  if (v.directed) {
+    Object.defineProperty(v, 'out', { get: () => tr(`lt.${k}.out`) });
+    Object.defineProperty(v, 'in', { get: () => tr(`lt.${k}.in`) });
+  }
+}
+const STATUS = {};
+for (const k of ['inconnu', 'vivant', 'mort', 'disparu']) Object.defineProperty(STATUS, k, { get: () => tr('st.' + k), enumerable: true });
+const NOTE_COLORS = { jaune: '#f1e7a6', rose: '#f2c9c2', bleu: '#c8dbe6', papier: '#f3f3df' };
+
+let board = { persons: [], links: [], notes: [] };
+let view = { x: 0, y: 0, s: 0.3 };
+let mode = 'select';
+let linkType = 'famille';
+let sel = null;          // { kind: 'person'|'link'|'note', id }
+let linkFrom = null;     // id de la personne de départ en mode lien
+let hoverId = null;
+let search = '';
+let prefs = { hidden: [], showNames: true, annScale: 1, lang: null };
+let IMG_W = 2044, IMG_H = 3068;
+
+const $ = (s) => document.querySelector(s);
+const uid = () => Math.random().toString(36).slice(2, 10);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const P = (id) => board.persons.find((p) => p.id === id);
+const L = (id) => board.links.find((l) => l.id === id);
+const N = (id) => board.notes.find((n) => n.id === id);
+// Registre d'équipage (characters.json) : { n, first, last, role, origin }
+let CHARS = [], CH = new Map();
+let pendingChar = null;   // personnage à épingler au prochain clic (depuis le registre)
+const charOf = (p) => (p && p.charId ? CH.get(+p.charId) : null);
+const fullName = (c) => [c.first, c.last].filter(Boolean).join(' ');
+const ptag = (p) => charOf(p)?.n ?? p.tag ?? p.num ?? '?';
+const pname = (p) => {
+  if (!p) return '?';
+  const c = charOf(p);
+  return c ? fullName(c) : p.name || `${tr('unknown')} ${p.tag ?? p.num ?? ''}`.trim();
+};
+const norm = (s) => String(s ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const pinsOf = (n) => board.persons.filter((p) => +p.charId === n);
+// Hypothèses d'identité d'une épingle (n° du registre), en plus de l'identité retenue (charId)
+const hypsOf = (p) => (p?.hyps || []).filter((n) => CH.has(n));
+const hypPinsOf = (n) => board.persons.filter((p) => (p.hyps || []).includes(n));
+const shortName = (c) => c.last || c.first;
+const hypShort = (p) => hypsOf(p).map((n) => shortName(CH.get(n)) + ' ?').join(' / ');
+const selObj = () => (sel && sel.kind !== 'multi' ? { person: P, link: L, note: N }[sel.kind](sel.id) : null);
+// Épingles sélectionnées (une seule ou sélection multiple)
+const selPinIds = () => (sel?.kind === 'multi' ? sel.ids : sel?.kind === 'person' ? [sel.id] : []);
+const isPinSel = (id) => selPinIds().includes(id);
+
+const viewport = $('#viewport'), stage = $('#stage'), svg = $('#links');
+const badgesEl = $('#badges'), pinsEl = $('#pins'), notesEl = $('#notes'), panel = $('#panel');
+
+try { Object.assign(prefs, JSON.parse(localStorage.getItem('obra.prefs') || '{}')); } catch {}
+const savePrefs = () => { try { localStorage.setItem('obra.prefs', JSON.stringify(prefs)); } catch {} };
+lang = prefs.lang || (/^fr\b/i.test(navigator.language) ? 'fr' : 'en');
+
+/* ======================================================================
+   Historique (annuler / rétablir)
+   ====================================================================== */
+const undoStack = [], redoStack = [];
+const snap = () => JSON.stringify(board);
+function pushUndo(s = snap()) {
+  undoStack.push(s);
+  if (undoStack.length > 300) undoStack.shift();
+  redoStack.length = 0;
+  updateUndoButtons();
+}
+function mutate(fn) { pushUndo(); fn(); renderAll(); scheduleSave(); }
+function restore(from, to) {
+  if (!from.length) return;
+  to.push(snap());
+  board = JSON.parse(from.pop());
+  if (sel?.kind === 'multi') sel = pinSelection(sel.ids.filter(P));
+  else if (sel && !selObj()) sel = null;
+  if (linkFrom && !P(linkFrom)) linkFrom = null;
+  renderAll(); scheduleSave();
+}
+const undo = () => restore(undoStack, redoStack);
+const redo = () => restore(redoStack, undoStack);
+function updateUndoButtons() { $('#undo').disabled = !undoStack.length; $('#redo').disabled = !redoStack.length; }
+
+/* ======================================================================
+   Persistance (board.json via server.js)
+   ====================================================================== */
+let saveTimer = null, dirty = false, lastStatus = { kind: '', key: 'status.loading' };
+function setStatus(kind, key) {
+  lastStatus = { kind, key };
+  const el = $('#status'); el.className = kind; el.querySelector('span').textContent = tr(key);
+}
+function scheduleSave() {
+  dirty = true; setStatus('pending', 'status.modified');
+  clearTimeout(saveTimer); saveTimer = setTimeout(save, 500);
+}
+const payload = () => JSON.stringify({ version: 1, savedAt: new Date().toISOString(), ...board }, null, 2);
+async function save() {
+  clearTimeout(saveTimer); saveTimer = null;
+  setStatus('saving', 'status.saving');
+  try {
+    const r = await fetch('/api/board', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: payload() });
+    if (!r.ok) throw new Error(r.status);
+    dirty = false; setStatus('ok', 'status.saved');
+  } catch (e) {
+    setStatus('err', 'status.saveErr');
+  }
+}
+window.addEventListener('beforeunload', () => {
+  if (dirty) navigator.sendBeacon('/api/board', new Blob([payload()], { type: 'application/json' }));
+});
+async function load() {
+  try {
+    const d = await (await fetch('/characters.json')).json();
+    CHARS = d.characters; CH = new Map(CHARS.map((c) => [c.n, c]));
+  } catch {}
+  try {
+    const r = await fetch('/api/board', { cache: 'no-store' });
+    const d = await r.json();
+    board = { persons: d.persons || [], links: d.links || [], notes: d.notes || [] };
+    // Anciennes notes : position = coin haut-gauche, taille liée au zoom → punaise + taille figée au zoom courant
+    let vs = view.s;
+    try { vs = JSON.parse(localStorage.getItem('obra.view'))?.s || vs; } catch {}
+    for (const n of board.notes) {
+      if (n.s) continue;
+      n.s = +(annFactor(vs) / vs).toFixed(3);
+      n.x = Math.round(n.x + 105 * n.s);
+    }
+    setStatus('ok', 'status.loaded');
+  } catch {
+    setStatus('err', 'status.noServer');
+  }
+  renderAll();
+}
+
+/* ======================================================================
+   Vue (zoom / déplacement)
+   ====================================================================== */
+// Taille à l'écran des annotations pour un zoom donné
+const annFactor = (s) => Math.min(1.1, Math.max(0.3, Math.pow(s, 0.6))) * prefs.annScale;
+function applyView() {
+  stage.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.s})`;
+  // Taille à l'écran des annotations : elles rétrécissent quand on dézoome, sans devenir microscopiques
+  const f = annFactor(view.s);
+  stage.style.setProperty('--inv', f / view.s);
+  stage.style.setProperty('--f', f);
+  stage.classList.toggle('compact', f < 0.6);
+  try { localStorage.setItem('obra.view', JSON.stringify(view)); } catch {}
+}
+function zoomAt(cx, cy, s) {
+  s = Math.min(4, Math.max(0.08, s));
+  const r = viewport.getBoundingClientRect();
+  const px = cx - r.left, py = cy - r.top;
+  view.x = px - (px - view.x) * (s / view.s);
+  view.y = py - (py - view.y) * (s / view.s);
+  view.s = s; applyView();
+}
+function zoomCenter(k) { const r = viewport.getBoundingClientRect(); zoomAt(r.left + r.width / 2, r.top + r.height / 2, view.s * k); }
+function fit() {
+  const r = viewport.getBoundingClientRect();
+  const s = Math.min((r.width - 40) / IMG_W, (r.height - 40) / IMG_H);
+  view = { s, x: (r.width - IMG_W * s) / 2, y: (r.height - IMG_H * s) / 2 };
+  applyView();
+}
+function centerOn(x, y) {
+  const r = viewport.getBoundingClientRect();
+  view.s = Math.max(view.s, 0.7);
+  view.x = r.width / 2 - x * view.s; view.y = r.height / 2 - y * view.s;
+  applyView();
+}
+function toImg(cx, cy) {
+  const r = viewport.getBoundingClientRect();
+  return { x: (cx - r.left - view.x) / view.s, y: (cy - r.top - view.y) / view.s };
+}
+
+/* ======================================================================
+   Rendu du tableau
+   ====================================================================== */
+function linkGeom(l) {
+  const a = P(l.from), b = P(l.to);
+  if (!a || !b) return null;
+  const same = board.links.filter((o) => (o.from === l.from && o.to === l.to) || (o.from === l.to && o.to === l.from));
+  const i = same.indexOf(l), n = same.length;
+  // normale calculée sur la paire ordonnée, pour écarter proprement les liens multiples
+  const [p, q] = l.from < l.to ? [a, b] : [b, a];
+  const dx = q.x - p.x, dy = q.y - p.y, len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  const spread = (i - (n - 1) / 2) * 55;
+  const sag = Math.min(len * 0.12, 90); // le fil pend un peu
+  const cx = (a.x + b.x) / 2 + nx * spread, cy = (a.y + b.y) / 2 + ny * spread + sag;
+  const mx = 0.25 * a.x + 0.5 * cx + 0.25 * b.x, my = 0.25 * a.y + 0.5 * cy + 0.25 * b.y;
+  const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+  return { d: `M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`, mx, my, ang };
+}
+
+function focusSet() {
+  return new Set(hoverId ? [hoverId] : selPinIds());
+}
+
+function renderBoard() {
+  const focus = focusSet();
+  const hidden = new Set(prefs.hidden);
+  let paths = '', badges = '';
+  for (const l of board.links) {
+    if (hidden.has(l.type)) continue;
+    if (prefs.hideConfirmedLinks && P(l.from)?.confirmed && P(l.to)?.confirmed) continue;
+    const t = LT[l.type] || LT.texte, g = linkGeom(l);
+    if (!g) continue;
+    const isSel = sel?.kind === 'link' && sel.id === l.id;
+    const dim = focus.size && !focus.has(l.from) && !focus.has(l.to) && !isSel ? 'dim' : '';
+    const hl = isSel || (focus.size && !dim) ? 'hl' : '';
+    paths += `<path class="halo ${dim}" d="${g.d}"/><path class="yarn ${dim} ${hl} ${t.dashed ? 'dashed' : ''}" stroke="${t.color}" d="${g.d}"/>`;
+    const showIcon = !(l.type === 'texte' && l.label);
+    badges += `<div class="badge ${dim} ${isSel ? 'sel' : ''} ${!l.label && !t.out ? 'only' : ''}" data-id="${l.id}"
+      style="left:${g.mx}px;top:${g.my}px;--c:${t.color}" title="${esc(t.label)}">
+      ${showIcon ? `<span class="ic">${t.icon}</span>` : ''}${l.label ? `<span>${esc(l.label)}</span>` : ''}
+      ${t.out ? `<span class="arr" style="transform:rotate(${g.ang}deg)">➜</span>` : ''}</div>`;
+  }
+  svg.setAttribute('width', IMG_W); svg.setAttribute('height', IMG_H);
+  svg.innerHTML = paths + '<path class="rubber" id="rubber" d=""/>';
+  badgesEl.innerHTML = badges;
+
+  pinsEl.innerHTML = board.persons.map((p) => {
+    const c = charOf(p), name = c ? fullName(c) : p.name, role = c ? roleL(c.role) : hypShort(p), nh = c ? 0 : hypsOf(p).length;
+    return `<div class="pin st-${p.status || 'inconnu'} ${p.confirmed ? 'ok' : ''} ${c ? '' : 'unk'}
+      ${isPinSel(p.id) ? 'sel' : ''} ${linkFrom === p.id ? 'from' : ''} ${hoverId === p.id ? 'hov' : ''}"
+      data-id="${p.id}" style="left:${p.x}px;top:${p.y}px" title="${esc(pname(p))}${role ? ' — ' + esc(role) : ''}">
+      ${esc(ptag(p))}${nh ? `<span class="hc">${nh}?</span>` : ''}
+      ${(() => {
+        const head = prefs.showNames && (name || role) ? `${esc(name || '')}${name && role ? ' · ' : ''}${role ? `<small>${esc(role)}</small>` : ''}` : '';
+        const fate = prefs.showFate && p.fate ? `<em class="fate">${esc(p.fate)}</em>` : '';
+        return head || fate ? `<span class="lbl">${head}${fate}</span>` : '';
+      })()}
+    </div>`;
+  }).join('');
+
+  notesEl.innerHTML = board.notes.map((n) => `<div class="note c-${n.color || 'jaune'} ${sel?.kind === 'note' && sel.id === n.id ? 'sel' : ''}"
+      data-id="${n.id}" style="left:${n.x}px;top:${n.y}px;--ns:${n.s};--rot:${n.rot ?? -1.5}deg">${n.text ? esc(n.text) : `<span class="empty">${tr('note.empty')}</span>`}</div>`).join('');
+}
+
+/* ======================================================================
+   Panneau latéral
+   ====================================================================== */
+function linkPhrase(l, pid) {
+  const t = LT[l.type] || LT.texte, other = P(l.from === pid ? l.to : l.from);
+  const who = `<a data-goto="${other?.id}">${esc(pname(other))}</a>`;
+  const verb = t.out ? (l.from === pid ? t.out : t.in) : t.label.toLowerCase() + ' :';
+  return `${verb} ${who}${l.label ? ` <em>${esc(tr('quote', { s: l.label }))}</em>` : ''}`;
+}
+
+function renderMulti() {
+  const ps = sel.ids.map(P).filter(Boolean), n = ps.length;
+  const hypCount = new Map();
+  ps.forEach((p) => hypsOf(p).forEach((h) => hypCount.set(h, (hypCount.get(h) || 0) + 1)));
+  const common = (f, d = '') => { const v = new Set(ps.map((p) => p[f] || d)); return v.size === 1 ? [...v][0] : null; };
+  const st = common('status', 'inconnu'), fate = common('fate');
+  const confAll = ps.every((p) => p.confirmed), confSome = ps.some((p) => p.confirmed);
+  panel.innerHTML = `
+    <h2>${tr('m.title', { n })}</h2>
+    <p class="sub">${tr('m.hint')}</p>
+    <div class="chips">${ps.map((p) => `<span class="chip"><b>${esc(ptag(p))}</b> <a data-goto="${p.id}">${esc(pname(p))}</a>
+      <button data-unsel="${p.id}" title="${tr('m.unsel')}">×</button></span>`).join('')}</div>
+    <label class="f">${tr('p.status')}</label>
+    <select class="field" id="mStatus">${st ? '' : `<option value="" selected>${tr('m.mixed')}</option>`}
+      ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${st === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+    <label class="f">${tr('p.fate')}</label>
+    <div class="idrow"><input class="field" id="mFate" value="${esc(fate ?? '')}" placeholder="${fate === null ? tr('m.mixed') : tr('p.fatePh')}">
+      <button class="btn" id="mFateApply">${tr('m.apply')}</button></div>
+    <label class="check"><input type="checkbox" id="mConf" ${confAll ? 'checked' : ''}> ${tr('p.confirmed')}</label>
+    <label class="f">${tr('p.hyps')}</label>
+    ${hypCount.size ? `<div class="chips">${[...hypCount].sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([h, c]) => `<span class="chip">
+      <b>${h}</b> ${esc(fullName(CH.get(h)))} <small>${c}/${n}</small>${pinsOf(h).length ? ` <span title="${esc(tr('combo.already'))}">📍 ${esc(pinsOf(h).map((p) => p.tag || ptag(p)).join(', '))}</span>` : ''}
+      ${c < n ? `<button data-mhypadd="${h}" title="${tr('m.hypAll')}">+</button>` : ''}
+      <button data-mhypdel="${h}" title="${tr('m.hypNone')}">×</button></span>`).join('')}</div>` : ''}
+    <div class="combo">
+      <input class="field" id="mhypInput" data-combo="bulk" autocomplete="off" spellcheck="false" placeholder="${tr('m.hypPh')}">
+      <ul class="combo-list" id="mhypList" hidden></ul>
+    </div>
+    <div class="actions">
+      <button class="btn" id="desel">${tr('close')}</button>
+      <button class="btn danger" id="del">${tr('m.del', { n })}</button>
+    </div>`;
+  $('#mConf').indeterminate = confSome && !confAll;
+}
+// Modifie toutes les épingles de la sélection multiple
+const forSelected = (fn) => mutate(() => sel.ids.map(P).filter(Boolean).forEach(fn));
+const addHyp = (p, h) => { if (+p.charId !== h && !hypsOf(p).includes(h)) p.hyps = [...hypsOf(p), h]; };
+
+function renderPanel() {
+  if (sel?.kind === 'multi') return renderMulti();
+  const o = selObj();
+  if (!o) return renderOverview();
+  if (sel.kind === 'person') {
+    const links = board.links.filter((l) => l.from === o.id || l.to === o.id);
+    const c = charOf(o), hyps = hypsOf(o);
+    panel.innerHTML = `
+      <h2><span class="dot st-${o.status || 'inconnu'}">${esc(ptag(o))}</span>${esc(pname(o))}</h2>
+      <p class="sub">${c ? `${esc(roleL(c.role))} · ${esc(originL(c.origin))}` : tr('unidentified')} — ${STATUS[o.status || 'inconnu']}</p>
+      <label class="f">${tr('p.identity')}</label>
+      <div class="idrow">
+        <div class="combo">
+          <input class="field" id="comboInput" data-combo="id" autocomplete="off" spellcheck="false" placeholder="${tr('p.identityPh')}" value="${esc(comboLabel(o))}">
+          <ul class="combo-list" id="comboList" hidden></ul>
+        </div>
+        ${c ? `<button class="btn" data-tohyp title="${tr('p.toHypTip')}">${tr('p.toHyp')}</button>` : ''}
+      </div>
+      <label class="f">${tr('p.hyps')} (${hyps.length})</label>
+      ${hyps.length ? `<div class="chips">${hyps.map((n) => {
+        const h = CH.get(n), elsewhere = pinsOf(n).some((q) => q.id !== o.id);
+        return `<span class="chip"><b>${n}</b> ${esc(fullName(h))} <small>${esc(roleL(h.role))}</small>
+          ${elsewhere ? `<span title="${tr('combo.already')}">📍</span>` : ''}
+          <button data-promote="${n}" title="${tr('hyp.promote')}">✓</button><button data-unhyp="${n}" title="${tr('hyp.remove')}">×</button></span>`;
+      }).join('')}</div>` : ''}
+      <div class="combo">
+        <input class="field" id="hypInput" data-combo="hyp" autocomplete="off" spellcheck="false" placeholder="${tr('p.hypsPh')}">
+        <ul class="combo-list" id="hypList" hidden></ul>
+      </div>
+      <div class="row">
+        <div><label class="f">${tr('p.status')}</label><select class="field" data-f="status">
+          ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${(o.status || 'inconnu') === k ? 'selected' : ''}>${v}</option>`).join('')}
+        </select></div>
+      </div>
+      <label class="f">${tr('p.fate')}</label><input class="field" data-f="fate" value="${esc(o.fate)}" placeholder="${tr('p.fatePh')}">
+      <label class="check"><input type="checkbox" data-f="confirmed" ${o.confirmed ? 'checked' : ''}> ${tr('p.confirmed')}</label>
+      <label class="f">${tr('p.notes')}</label><textarea class="field" data-f="notes" placeholder="${tr('p.notesPh')}">${esc(o.notes)}</textarea>
+
+      <h3>${tr('p.links')} (${links.length})</h3>
+      ${links.length ? links.map((l) => `<div class="lk"><span class="ic">${(LT[l.type] || LT.texte).icon}</span>
+          <span class="txt">${linkPhrase(l, o.id)}</span>
+          <button class="x" data-sel-link="${l.id}" title="${tr('edit')}">✎</button>
+          <button class="x" data-del-link="${l.id}" title="${tr('del')}">×</button></div>`).join('')
+        : `<p class="muted">${tr('p.noLinks')}</p>`}
+      <div class="actions">
+        <button class="btn primary" id="startLink">${tr('p.linkTo')}</button>
+        <button class="btn" id="desel">${tr('close')}</button>
+        <button class="btn danger" id="del">${tr('del')}</button>
+      </div>`;
+  } else if (sel.kind === 'link') {
+    const a = P(o.from), b = P(o.to), t = LT[o.type] || LT.texte;
+    panel.innerHTML = `
+      <h2>${t.icon} ${tr('link.title')}</h2>
+      <p class="sub"><a data-goto="${a?.id}">${esc(pname(a))}</a> ${t.out ? '→' : '—'} <a data-goto="${b?.id}">${esc(pname(b))}</a></p>
+      <label class="f">${tr('link.type')}</label>
+      <div class="types">${Object.entries(LT).map(([k, v]) => `<button class="type ${o.type === k ? 'on' : ''}" style="--c:${v.color}" data-ltype="${k}">${v.icon} ${v.label}</button>`).join('')}</div>
+      <label class="f">${tr('link.text')}</label><input class="field" data-f="label" value="${esc(o.label)}" placeholder="${tr('link.textPh')}" id="flabel">
+      <div class="actions">
+        <button class="btn" id="swap">${tr('link.swap')}</button>
+        <button class="btn" id="desel">${tr('close')}</button>
+        <button class="btn danger" id="del">${tr('del')}</button>
+      </div>`;
+  } else {
+    panel.innerHTML = `
+      <h2>🗒 Note</h2>
+      <label class="f">${tr('note.text')}</label><textarea class="field" data-f="text" id="ftext" style="min-height:160px">${esc(o.text)}</textarea>
+      <label class="f">${tr('note.color')}</label>
+      <label class="f">${tr('note.size')}</label>
+      <div class="swatches"><button class="btn" data-nsize="0.8" title="${tr('note.smaller')}">−</button><button class="btn" data-nsize="1.25" title="${tr('note.bigger')}">+</button></div>
+      <label class="f">${tr('note.color')}</label>
+      <div class="swatches">${Object.entries(NOTE_COLORS).map(([k, c]) => `<button style="background:${c}" class="${(o.color || 'jaune') === k ? 'on' : ''}" data-ncolor="${k}" title="${tr('color.' + k)}"></button>`).join('')}</div>
+      <div class="actions"><button class="btn" id="desel">${tr('close')}</button><button class="btn danger" id="del">${tr('del')}</button></div>`;
+  }
+}
+
+function renderOverview() {
+  const q = norm(search.trim());
+  const people = board.persons
+    .filter((p) => { const c = charOf(p); return !q || norm([pname(p), p.name, c && charHay(c), ...hypsOf(p).map((n) => charHay(CH.get(n))), p.fate, p.notes].join(' ')).includes(q); })
+    .sort((a, b) => (charOf(a)?.n ?? 999) - (charOf(b)?.n ?? 999) || pname(a).localeCompare(pname(b)));
+  const count = (s) => board.persons.filter((p) => (p.status || 'inconnu') === s).length;
+  const confirmed = board.persons.filter((p) => p.confirmed).length;
+  const identified = new Set(board.persons.filter(charOf).map((p) => +p.charId)).size;
+  // Sections repliables ; l'état est mémorisé dans les préférences du navigateur
+  const sec = (id, title, body, big = false) =>
+    `<details class="sec ${big ? 'big' : ''}" data-sec="${id}" ${(prefs.closed || []).includes(id) ? '' : 'open'}><summary>${title}</summary>${body}</details>`;
+  panel.innerHTML = sec('pins', tr('ov.title'), `
+    <p class="sub">${tr('ov.stats', { pins: board.persons.length, ids: identified, total: CHARS.length || 60, conf: confirmed, dead: count('mort'), alive: count('vivant') })}</p>
+    <div class="row"><input class="field" id="search" placeholder="${tr('ov.filterPh')}" value="${esc(search)}">
+      <button class="btn" id="openRoster2" style="flex:0 0 auto;margin-top:3px">${tr('ov.roster')}</button></div>
+    <ul class="list" style="margin-top:8px">${people.map((p) => `<li data-goto="${p.id}" class="${p.confirmed ? 'ok' : ''}">
+        <span class="dot st-${p.status || 'inconnu'}">${esc(ptag(p))}</span>
+        <span class="nm">${esc(pname(p))}${p.confirmed ? ' ✓' : ''}</span><span class="rl">${esc(charOf(p) ? roleL(charOf(p).role) : hypShort(p))}</span></li>`).join('')
+      || `<li class="muted" style="cursor:default">${board.persons.length ? tr('ov.noResult') : tr('ov.empty')}</li>`}</ul>`, true)
+  + sec('threads', tr('ov.threads'), `
+    <div class="legend">${Object.entries(LT).map(([k, v]) => `<label style="--c:${v.color}">
+        <input type="checkbox" data-vis="${k}" ${prefs.hidden.includes(k) ? '' : 'checked'}>
+        <span class="sw ${v.dashed ? 'dashed' : ''}"></span>${v.icon} ${v.label}</label>`).join('')}</div>
+    <label class="check"><input type="checkbox" id="showNames" ${prefs.showNames ? 'checked' : ''}> ${tr('ov.showNames')}</label>
+    <label class="check"><input type="checkbox" id="showFate" ${prefs.showFate ? 'checked' : ''}> ${tr('ov.showFate')}</label>
+    <label class="check"><input type="checkbox" id="showConfLinks" ${prefs.hideConfirmedLinks ? '' : 'checked'}> ${tr('ov.showConfLinks')}</label>`)
+  + sec('shortcuts', tr('ov.shortcuts'), `<div class="kbd">${tr('ov.keys')}</div>`);
+}
+panel.addEventListener('toggle', (e) => {
+  const id = e.target.dataset?.sec;
+  if (!id) return;
+  const closed = new Set(prefs.closed || []);
+  e.target.open ? closed.delete(id) : closed.add(id);
+  prefs.closed = [...closed]; savePrefs();
+}, true); // « toggle » ne remonte pas : écoute en phase de capture
+
+function renderToolbar() {
+  document.querySelectorAll('#modes .tb').forEach((b) => b.classList.toggle('on', b.dataset.mode === mode));
+  viewport.className = 'm-' + mode;
+  $('#linktypes').innerHTML = Object.entries(LT).map(([k, v]) =>
+    `<button class="tb ico ${linkType === k && mode === 'link' ? 'on' : ''}" data-lt="${k}" title="${v.label}">${v.icon}</button>`).join('');
+  const hints = {
+    select: '',
+    pin: pendingChar != null && CH.get(pendingChar)
+      ? tr('hint.pinChar', { who: `${pendingChar} · ${fullName(CH.get(pendingChar))}` })
+      : tr('hint.pin'),
+    link: linkFrom ? tr('hint.linkFrom', { who: pname(P(linkFrom)), type: LT[linkType].label })
+                   : tr('hint.link', { type: LT[linkType].label }),
+    note: tr('hint.note'),
+  };
+  $('#hint').textContent = hints[mode];
+}
+
+function renderAll() { renderBoard(); renderPanel(); renderToolbar(); updateUndoButtons(); }
+
+/* ======================================================================
+   Actions
+   ====================================================================== */
+function select(kind, id) {
+  sel = kind ? { kind, id } : null;
+  renderBoard(); renderPanel();
+}
+function pinSelection(ids) {
+  ids = [...new Set(ids)];
+  return ids.length > 1 ? { kind: 'multi', ids } : ids.length ? { kind: 'person', id: ids[0] } : null;
+}
+function selectPins(ids) {
+  sel = pinSelection(ids);
+  renderBoard(); renderPanel();
+}
+function togglePin(id) {
+  const ids = selPinIds();
+  selectPins(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+}
+function setMode(m) {
+  mode = m; linkFrom = null; pendingChar = null;
+  renderToolbar(); renderBoard();
+}
+// Repère des épingles non identifiées : A, B, … Z, AA, AB…
+function nextTag() {
+  const used = new Set(board.persons.map((p) => p.tag));
+  const label = (i) => (i >= 26 ? label(Math.floor(i / 26) - 1) : '') + String.fromCharCode(65 + (i % 26));
+  let i = 0; while (used.has(label(i))) i++;
+  return label(i);
+}
+function addPerson(pt) {
+  const p = { id: uid(), x: Math.round(pt.x), y: Math.round(pt.y), tag: nextTag(), charId: pendingChar, name: '', status: 'inconnu', fate: '', confirmed: false, notes: '' };
+  const fromRoster = pendingChar != null;
+  pendingChar = null;
+  mutate(() => board.persons.push(p));
+  if (fromRoster) setMode('select');
+  select('person', p.id);
+  if (!fromRoster) setTimeout(() => $('#comboInput')?.focus(), 0);
+}
+function addNote(pt) {
+  const n = { id: uid(), x: Math.round(pt.x), y: Math.round(pt.y), s: +(annFactor(view.s) / view.s).toFixed(3), text: '', color: 'jaune', rot: +(Math.random() * 4 - 2).toFixed(1) };
+  mutate(() => board.notes.push(n));
+  select('note', n.id);
+  setTimeout(() => $('#ftext')?.focus(), 0);
+}
+function addLink(from, to) {
+  if (from === to) return;
+  const l = { id: uid(), from, to, type: linkType, label: '' };
+  mutate(() => board.links.push(l));
+  linkFrom = null;
+  select('link', l.id);
+  renderToolbar();
+  if (linkType === 'texte') setTimeout(() => $('#flabel')?.focus(), 0);
+}
+function deleteSel() {
+  if (!sel) return;
+  const { kind, id } = sel;
+  mutate(() => {
+    if (kind === 'multi') {
+      const ids = new Set(sel.ids);
+      board.persons = board.persons.filter((p) => !ids.has(p.id));
+      board.links = board.links.filter((l) => !ids.has(l.from) && !ids.has(l.to));
+    } else if (kind === 'person') {
+      board.persons = board.persons.filter((p) => p.id !== id);
+      board.links = board.links.filter((l) => l.from !== id && l.to !== id);
+    } else if (kind === 'link') board.links = board.links.filter((l) => l.id !== id);
+    else board.notes = board.notes.filter((n) => n.id !== id);
+    sel = null;
+  });
+}
+
+/* ======================================================================
+   Interactions sur le tableau
+   ====================================================================== */
+let drag = null, spaceDown = false;
+
+viewport.addEventListener('pointerdown', (e) => {
+  if (e.button === 1 || (e.button === 0 && spaceDown)) return startPan(e, false);
+  if (e.button !== 0) return;
+  const pinEl = e.target.closest('.pin'), noteEl = e.target.closest('.note'), badgeEl = e.target.closest('.badge');
+
+  if (pinEl) {
+    const id = pinEl.dataset.id;
+    if (mode === 'link') {
+      if (!linkFrom) { linkFrom = id; renderToolbar(); renderBoard(); }
+      else addLink(linkFrom, id);
+      return;
+    }
+    if (e.altKey) { linkFrom = id; drag = { type: 'altlink', id }; return; }
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return togglePin(id);
+    if (isDoubleDown(id)) { select('person', id); return focusField('#comboInput'); }
+    // clic sur une épingle déjà dans une sélection multiple : on déplace tout le groupe
+    if (!(sel?.kind === 'multi' && isPinSel(id))) select('person', id);
+    const objs = selPinIds().map(P).filter(Boolean);
+    drag = { type: 'move', items: objs.map((o) => ({ o, ox: o.x, oy: o.y })), sx: e.clientX, sy: e.clientY, moved: false };
+    return;
+  }
+  if (noteEl) {
+    const n = N(noteEl.dataset.id);
+    if (isDoubleDown(n.id)) { select('note', n.id); return focusField('#ftext'); }
+    select('note', n.id);
+    drag = { type: 'move', items: [{ o: n, ox: n.x, oy: n.y }], sx: e.clientX, sy: e.clientY, moved: false };
+    return;
+  }
+  if (badgeEl) { const dbl = isDoubleDown(badgeEl.dataset.id); select('link', badgeEl.dataset.id); if (dbl) focusField('#flabel'); return; }
+
+  const pt = toImg(e.clientX, e.clientY);
+  const onImage = pt.x >= 0 && pt.y >= 0 && pt.x <= IMG_W && pt.y <= IMG_H;
+  if (mode === 'pin' && onImage) return addPerson(pt);
+  if (mode === 'note') return addNote(pt);
+  if (mode === 'link' && linkFrom) { linkFrom = null; renderToolbar(); renderBoard(); return; }
+  if (mode === 'select' && (e.shiftKey || e.metaKey || e.ctrlKey)) return startMarquee(e);
+  startPan(e, true);
+});
+
+// Cadre de sélection (⇧ ou ⌘ + glisser sur le fond) ; il complète la sélection existante
+function startMarquee(e) {
+  e.preventDefault();
+  const r = viewport.getBoundingClientRect();
+  drag = { type: 'marquee', sx: e.clientX, sy: e.clientY, rx: r.left, ry: r.top, base: selPinIds(), moved: false };
+}
+function marqueeRect(d, e) {
+  return { x1: Math.min(d.sx, e.clientX), y1: Math.min(d.sy, e.clientY), x2: Math.max(d.sx, e.clientX), y2: Math.max(d.sy, e.clientY) };
+}
+function startPan(e, deselectOnClick) {
+  e.preventDefault();
+  drag = { type: 'pan', sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y, moved: false, deselectOnClick };
+  viewport.classList.add('panning');
+}
+
+window.addEventListener('pointermove', (e) => {
+  if ((mode === 'link' && linkFrom) || drag?.type === 'altlink') {
+    const a = P(linkFrom), r = $('#rubber'), pt = toImg(e.clientX, e.clientY);
+    if (a && r) r.setAttribute('d', `M${a.x},${a.y} L${pt.x},${pt.y}`);
+  }
+  if (!drag) return;
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!drag.moved && Math.hypot(dx, dy) < 3) return;
+  if (drag.type === 'pan') {
+    drag.moved = true;
+    view.x = drag.ox + dx; view.y = drag.oy + dy; applyView();
+  } else if (drag.type === 'move') {
+    if (!drag.moved) { pushUndo(); drag.moved = true; }
+    for (const it of drag.items) {
+      it.o.x = Math.round(it.ox + dx / view.s);
+      it.o.y = Math.round(it.oy + dy / view.s);
+    }
+    renderBoard();
+  } else if (drag.type === 'marquee') {
+    drag.moved = true;
+    const m = marqueeRect(drag, e), el = $('#marquee');
+    Object.assign(el.style, { left: m.x1 - drag.rx + 'px', top: m.y1 - drag.ry + 'px', width: m.x2 - m.x1 + 'px', height: m.y2 - m.y1 + 'px' });
+    el.hidden = false;
+  }
+});
+
+window.addEventListener('pointerup', (e) => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  viewport.classList.remove('panning');
+  if (d.type === 'pan' && !d.moved && d.deselectOnClick) select(null);
+  if (d.type === 'move' && d.moved) scheduleSave();
+  if (d.type === 'marquee') {
+    $('#marquee').hidden = true;
+    if (!d.moved) return;
+    const m = marqueeRect(d, e), a = toImg(m.x1, m.y1), b = toImg(m.x2, m.y2);
+    const inside = board.persons.filter((p) => p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y).map((p) => p.id);
+    selectPins([...d.base, ...inside]);
+  }
+  if (d.type === 'altlink') {
+    const target = document.elementFromPoint(e.clientX, e.clientY)?.closest('.pin');
+    if (target && target.dataset.id !== d.id) addLink(d.id, target.dataset.id);
+    else { linkFrom = null; renderBoard(); }
+  }
+});
+
+viewport.addEventListener('pointerover', (e) => {
+  const pin = e.target.closest('.pin');
+  const id = pin ? pin.dataset.id : null;
+  if (id !== hoverId) { hoverId = id; if (!drag) renderBoard(); }
+});
+viewport.addEventListener('pointerleave', () => { if (hoverId) { hoverId = null; renderBoard(); } });
+
+/* ---- Copier / couper / coller une note (⌘C / ⌘X / ⌘V) ---- */
+let noteClip = null, lastPointer = null;
+const isTyping = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
+viewport.addEventListener('pointermove', (e) => { lastPointer = { x: e.clientX, y: e.clientY }; });
+viewport.addEventListener('pointerleave', () => { lastPointer = null; });
+function onCopyNote(e, cut) {
+  if (isTyping() || !roster.hidden || sel?.kind !== 'note') return;
+  const n = selObj();
+  if (!n) return;
+  noteClip = { text: n.text || '', color: n.color, s: n.s, x: n.x, y: n.y };
+  e.clipboardData.setData('text/plain', n.text || '');
+  e.preventDefault();
+  if (cut) deleteSel();
+}
+document.addEventListener('copy', (e) => onCopyNote(e, false));
+document.addEventListener('cut', (e) => onCopyNote(e, true));
+// Colle la note copiée (ou, à défaut, du texte venu d'ailleurs) sous la souris
+document.addEventListener('paste', (e) => {
+  if (isTyping() || !roster.hidden) return;
+  const text = e.clipboardData.getData('text/plain');
+  const clip = noteClip && noteClip.text === text ? noteClip : text.trim() ? { text } : null;
+  if (!clip) return;
+  e.preventDefault();
+  let pt = lastPointer ? toImg(lastPointer.x, lastPointer.y) : clip.x != null ? { x: clip.x, y: clip.y } : (() => {
+    const r = viewport.getBoundingClientRect(); return toImg(r.left + r.width / 2, r.top + r.height / 2);
+  })();
+  // décale si une note est déjà exactement à cet endroit
+  const step = 24 / view.s;
+  while (board.notes.some((o) => Math.abs(o.x - pt.x) < 3 && Math.abs(o.y - pt.y) < 3)) pt = { x: pt.x + step, y: pt.y + step };
+  const n = { id: uid(), x: Math.round(pt.x), y: Math.round(pt.y), s: clip.s ?? +(annFactor(view.s) / view.s).toFixed(3),
+    text: clip.text, color: clip.color || 'jaune', rot: +(Math.random() * 4 - 2).toFixed(1) };
+  mutate(() => board.notes.push(n));
+  select('note', n.id);
+});
+
+viewport.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const k = Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015));
+  zoomAt(e.clientX, e.clientY, view.s * k);
+}, { passive: false });
+
+// Double-clic détecté à l'appui : le premier clic redessine l'élément (sélection),
+// si bien que le navigateur ne déclenche jamais « dblclick » dessus.
+let lastDown = { id: null, t: 0 };
+function isDoubleDown(id) {
+  const now = performance.now(), dbl = lastDown.id === id && now - lastDown.t < 400;
+  lastDown = { id, t: dbl ? 0 : now };
+  return dbl;
+}
+function focusField(sel) {
+  setTimeout(() => { const f = $(sel); if (!f) return; f.focus(); if (f.setSelectionRange) f.setSelectionRange(f.value.length, f.value.length); }, 0);
+}
+
+/* ======================================================================
+   Barre d'outils & panneau
+   ====================================================================== */
+$('#modes').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode); });
+$('#linktypes').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-lt]'); if (!b) return;
+  linkType = b.dataset.lt;
+  if (mode !== 'link') setMode('link'); else renderToolbar();
+});
+$('#undo').onclick = undo; $('#redo').onclick = redo;
+$('#zin').onclick = () => zoomCenter(1.3);
+$('#zout').onclick = () => zoomCenter(1 / 1.3);
+$('#zfit').onclick = fit;
+$('#annScale').value = prefs.annScale;
+$('#langSwitch').addEventListener('click', (e) => { const b = e.target.closest('[data-lang]'); if (b && b.dataset.lang !== lang) setLang(b.dataset.lang); });
+$('#annScale').addEventListener('input', (e) => { prefs.annScale = +e.target.value; savePrefs(); applyView(); });
+
+// Édition des champs : un seul point d'annulation par session de saisie
+let pendingSnap = null;
+panel.addEventListener('focusin', (e) => { if (e.target.dataset.f) pendingSnap = snap(); });
+function onField(e) {
+  const f = e.target.dataset.f, o = selObj();
+  if (!f || !o) return;
+  if (pendingSnap) { pushUndo(pendingSnap); pendingSnap = null; }
+  o[f] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  renderBoard(); scheduleSave();
+  if (f === 'status' || f === 'confirmed' || (f === 'num' && e.type === 'change')) {
+    const h = panel.querySelector('h2 .dot');
+    if (h) { h.className = `dot st-${o.status || 'inconnu'}`; h.textContent = ptag(o); }
+  }
+}
+panel.addEventListener('input', onField);
+
+panel.addEventListener('input', (e) => {
+  if (e.target.id === 'mStatus' && e.target.value) { const v = e.target.value; return forSelected((p) => { p.status = v; }); }
+  if (e.target.id === 'search') {
+    search = e.target.value;
+    const pos = e.target.selectionStart;
+    renderPanel();
+    const s = $('#search'); s.focus(); s.setSelectionRange(pos, pos);
+  }
+});
+
+panel.addEventListener('keydown', (e) => {
+  if (e.target.id === 'mFate' && e.key === 'Enter') { e.preventDefault(); $('#mFateApply').click(); }
+});
+panel.addEventListener('click', (e) => {
+  const t = e.target;
+  if (sel?.kind === 'multi') {
+    const un = t.closest('[data-unsel]'), ha = t.closest('[data-mhypadd]'), hd = t.closest('[data-mhypdel]');
+    if (un) return togglePin(un.dataset.unsel);
+    if (ha) { const h = +ha.dataset.mhypadd; return forSelected((p) => addHyp(p, h)); }
+    if (hd) { const h = +hd.dataset.mhypdel; return forSelected((p) => { p.hyps = hypsOf(p).filter((x) => x !== h); }); }
+    if (t.id === 'mConf') { const v = t.checked; return forSelected((p) => { p.confirmed = v; }); }
+    if (t.id === 'mFateApply') { const v = $('#mFate').value; return forSelected((p) => { p.fate = v; }); }
+  }
+  const go = t.closest('[data-goto]');
+  if (go && go.dataset.goto) { const p = P(go.dataset.goto); if (p) { select('person', p.id); centerOn(p.x, p.y); } return; }
+  if (t.dataset.selLink) return select('link', t.dataset.selLink);
+  if (t.dataset.delLink) return mutate(() => { board.links = board.links.filter((l) => l.id !== t.dataset.delLink); });
+  if (t.closest('[data-ltype]')) { const k = t.closest('[data-ltype]').dataset.ltype; return mutate(() => { selObj().type = k; }); }
+  if (t.dataset.ncolor) return mutate(() => { selObj().color = t.dataset.ncolor; });
+  if (t.dataset.nsize) return mutate(() => { const n = selObj(); n.s = +((n.s || 1) * +t.dataset.nsize).toFixed(3); });
+  if (t.dataset.vis) {
+    prefs.hidden = t.checked ? prefs.hidden.filter((k) => k !== t.dataset.vis) : [...prefs.hidden, t.dataset.vis];
+    savePrefs(); return renderBoard();
+  }
+  if (t.id === 'showNames') { prefs.showNames = t.checked; savePrefs(); return renderBoard(); }
+  if (t.id === 'showFate') { prefs.showFate = t.checked; savePrefs(); return renderBoard(); }
+  if (t.id === 'showConfLinks') { prefs.hideConfirmedLinks = !t.checked; savePrefs(); return renderBoard(); }
+  if (t.id === 'openRoster2') return openRoster();
+  const pr = t.closest('[data-promote]'), uh = t.closest('[data-unhyp]');
+  if (pr) {
+    const n = +pr.dataset.promote;
+    return mutate(() => { const o = selObj(), h = hypsOf(o).filter((x) => x !== n); if (o.charId) h.unshift(+o.charId); o.hyps = h; o.charId = n; });
+  }
+  if (uh) return mutate(() => { const o = selObj(); o.hyps = hypsOf(o).filter((x) => x !== +uh.dataset.unhyp); });
+  if (t.closest('[data-tohyp]')) return mutate(() => { const o = selObj(); o.hyps = [+o.charId, ...hypsOf(o)]; o.charId = null; });
+  if (t.id === 'del') return deleteSel();
+  if (t.id === 'desel') return select(null);
+  if (t.id === 'swap') return mutate(() => { const l = selObj(); [l.from, l.to] = [l.to, l.from]; });
+  if (t.id === 'startLink') { const id = sel.id; setMode('link'); linkFrom = id; renderToolbar(); renderBoard(); }
+});
+
+/* ======================================================================
+   Sélecteurs de personnage : identité retenue + hypothèses
+   ====================================================================== */
+function comboLabel(p) {
+  const c = charOf(p);
+  return c ? `${c.n} · ${fullName(c)} — ${roleL(c.role)}` : '';
+}
+const tokensOf = (s) => norm(s).split(/\s+/).filter(Boolean);
+function matchChar(c, tokens) {
+  const hay = norm(charHay(c));
+  return tokens.every((t) => (/^\d+$/.test(t) ? String(c.n).startsWith(t) : hay.includes(t)));
+}
+let combo = null; // { which: 'id' | 'hyp', items, active }
+// Badge « déjà épinglé » : épingles dont ce personnage est l'identité retenue
+function pinnedTag(n) {
+  const tags = pinsOf(n).map((p) => p.tag || ptag(p));
+  return tags.length ? `<span class="tag" title="${esc(tr('combo.already'))}">📍 ${esc(tags.join(', '))}</span>` : '';
+}
+const comboEls = (which) => (which === 'hyp' ? [$('#hypInput'), $('#hypList')] : which === 'bulk' ? [$('#mhypInput'), $('#mhypList')] : [$('#comboInput'), $('#comboList')]);
+function renderCombo() {
+  const bulk = combo?.which === 'bulk', o = bulk ? null : selObj();
+  if (!combo || (!o && !bulk)) return;
+  const [input, list] = comboEls(combo.which);
+  if (!input) return;
+  const tokens = tokensOf(input.value), hyps = bulk ? [] : hypsOf(o);
+  let chars = CHARS.filter((c) => matchChar(c, tokens));
+  if (combo.which === 'hyp') chars = chars.filter((c) => c.n !== +o.charId && !hyps.includes(c.n));
+  const ps = bulk ? sel.ids.map(P).filter(Boolean) : [];
+  if (bulk) chars = chars.filter((c) => ps.some((p) => +p.charId !== c.n && !hypsOf(p).includes(c.n)));
+  combo.items = [...(combo.which === 'id' && !tokens.length ? [null] : []), ...chars];
+  combo.active = Math.max(0, Math.min(combo.active, combo.items.length - 1));
+  list.innerHTML = combo.items.map((c, i) => {
+    const act = i === combo.active ? 'act' : '';
+    if (!c) return `<li class="none ${act}" data-i="${i}">${tr('combo.none')}</li>`;
+    if (bulk) {
+      const k = ps.filter((p) => hypsOf(p).includes(c.n)).length;
+      return `<li class="${act}" data-i="${i}"><span class="n">${c.n}</span>
+        <span class="who">${esc(fullName(c))}<small>${esc(roleL(c.role))} · ${esc(originL(c.origin))}</small></span>
+        ${k ? `<span class="tag">${k}/${ps.length}</span>` : ''}${pinnedTag(c.n)}</li>`;
+    }
+    const elsewhere = pinsOf(c.n).some((p) => p.id !== o.id);
+    const tag = +o.charId === c.n ? tr('combo.current') : hyps.includes(c.n) ? tr('combo.hyp') : elsewhere ? tr('combo.already') : '';
+    return `<li class="${act}" data-i="${i}"><span class="n">${c.n}</span>
+      <span class="who">${esc(fullName(c))}<small>${esc(roleL(c.role))} · ${esc(originL(c.origin))}</small></span>
+      ${tag ? `<span class="tag">${tag}</span>` : ''}</li>`;
+  }).join('') || `<li class="empty">${tr('combo.empty')}</li>`;
+  list.hidden = false;
+  list.querySelector('.act')?.scrollIntoView({ block: 'nearest' });
+}
+function chooseCombo(i) {
+  const c = combo?.items[i], o = selObj();
+  if (c === undefined) return;
+  if (combo.which === 'bulk') {
+    forSelected((p) => addHyp(p, c.n));
+    setTimeout(() => $('#mhypInput')?.focus(), 0);
+    return;
+  }
+  if (!o) return;
+  if (combo.which === 'id') {
+    $('#comboInput').blur();
+    const id = c ? c.n : null;
+    if ((o.charId ?? null) !== id) mutate(() => { o.charId = id; o.hyps = hypsOf(o).filter((n) => n !== id); });
+  } else {
+    mutate(() => { o.hyps = [...hypsOf(o), c.n]; });
+    setTimeout(() => $('#hypInput')?.focus(), 0); // pour enchaîner plusieurs hypothèses
+  }
+}
+panel.addEventListener('focusin', (e) => {
+  const which = e.target.dataset.combo;
+  if (!which) return;
+  const o = selObj();
+  combo = { which, items: [], active: 0 };
+  if (which === 'id') {
+    e.target.value = '';
+    combo.active = o?.charId ? CHARS.findIndex((c) => c.n === +o.charId) + 1 : 0;
+  }
+  renderCombo();
+});
+panel.addEventListener('focusout', (e) => {
+  const which = e.target.dataset.combo;
+  if (!which) return;
+  comboEls(which)[1].hidden = true;
+  e.target.value = which === 'id' ? comboLabel(selObj()) : '';
+  combo = null;
+});
+panel.addEventListener('input', (e) => { if (e.target.dataset.combo && combo) { combo.active = 0; renderCombo(); } });
+panel.addEventListener('keydown', (e) => {
+  if (!e.target.dataset.combo || !combo) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const n = combo.items.length || 1;
+    combo.active = (combo.active + (e.key === 'ArrowDown' ? 1 : -1) + n) % n;
+    renderCombo();
+  } else if (e.key === 'Enter') { e.preventDefault(); chooseCombo(combo.active); }
+  else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); e.target.blur(); }
+});
+panel.addEventListener('mousedown', (e) => {
+  const li = e.target.closest('.combo-list li[data-i]');
+  if (li) { e.preventDefault(); chooseCombo(+li.dataset.i); }
+});
+
+/* ======================================================================
+   Vue registre (liste filtrable)
+   ====================================================================== */
+const roster = $('#roster'), peek = $('#peek');
+const RF_DEFAULT = { q: '', in: 'name', role: '', origin: '', status: '', pinned: '', conf: '', sort: 'n', dir: 1 };
+let RF = { ...RF_DEFAULT, ...(prefs.roster || {}) };
+if (RF.pinned === 'yes') RF.pinned = 'any'; // ancienne valeur
+const RF_INPUTS = { q: '#rQ', in: '#rIn', role: '#rRole', origin: '#rOrigin', status: '#rStatus', pinned: '#rPinned', conf: '#rConf' };
+const R_COLS = ['n', 'first', 'last', 'role', 'origin', 'status', 'fate', 'conf', 'pins', null];
+const colLabel = (k) => (k === 'n' ? '#' : k === 'conf' ? '✓' : k ? tr('col.' + k) : '');
+
+function fillRosterSelects() {
+  const counts = (key) => CHARS.reduce((m, c) => m.set(c[key], (m.get(c[key]) || 0) + 1), new Map());
+  // valeurs = données brutes (anglais), libellés = langue courante
+  const opts = (m, label, sorted) => [...m].map(([v, n]) => [v, label(v), n])
+    .sort(sorted ? (a, b) => a[1].localeCompare(b[1]) : () => 0)
+    .map(([v, l, n]) => `<option value="${esc(v)}">${esc(l)} (${n})</option>`).join('');
+  $('#rRole').innerHTML = `<option value="">${tr('opt.allF')}</option>` + opts(counts('role'), roleL) + `<option value="__unk">${tr('opt.unidentified')}</option>`;
+  $('#rOrigin').innerHTML = `<option value="">${tr('opt.allF')}</option>` + opts(counts('origin'), originL, true);
+  $('#rStatus').innerHTML = `<option value="">${tr('opt.all')}</option>` + Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+  for (const [k, sel] of Object.entries(RF_INPUTS)) $(sel).value = RF[k];
+}
+function openRoster() {
+  roster.hidden = false;
+  fillRosterSelects();
+  renderRoster();
+  $('#rQ').focus(); $('#rQ').select();
+}
+function closeRoster() { roster.hidden = true; hidePeek(); document.activeElement?.blur(); }
+
+function rosterRows() {
+  const rows = CHARS.map((c) => {
+    const idPins = pinsOf(c.n), hypPins = hypPinsOf(c.n), p = idPins[0];
+    return { n: c.n, first: c.first, last: c.last, role: roleL(c.role), origin: originL(c.origin), roleRaw: c.role, originRaw: c.origin,
+      pin: p, idPins, hypPins, pins: idPins.length * 100 + hypPins.length,
+      status: p?.status || 'inconnu', fate: p?.fate || '', conf: !!p?.confirmed, notes: p?.notes || '' };
+  });
+  for (const p of board.persons.filter((p) => !charOf(p))) {
+    rows.push({ n: null, tag: p.tag, first: '', last: p.name || `${tr('unknown')} ${p.tag || ''}`, hyp: hypShort(p), role: '', origin: '',
+      pin: p, idPins: [p], hypPins: [], pins: 100, status: p.status || 'inconnu', fate: p.fate || '', conf: !!p.confirmed, notes: p.notes || '', unk: true });
+  }
+  return rows;
+}
+const searchFields = { name: ['first', 'last'], first: ['first'], last: ['last'], all: ['first', 'last', 'role', 'origin', 'fate', 'notes', 'hyp'] };
+const PIN_FILTERS = {
+  id: (r) => !r.unk && r.idPins.length > 0,
+  hyp: (r) => r.hypPins.length > 0 || (r.unk && !!r.hyp),
+  any: (r) => r.idPins.length + r.hypPins.length > 0,
+  no: (r) => r.idPins.length + r.hypPins.length === 0,
+};
+
+// Surligne les termes recherchés (la normalisation conserve la longueur des noms usuels)
+function hl(text, tokens) {
+  const t = String(text ?? ''), n = norm(t);
+  if (!tokens.length || n.length !== t.length) return esc(t);
+  const marks = new Array(t.length).fill(false);
+  for (const tok of tokens) { let i = n.indexOf(tok); while (i >= 0) { marks.fill(true, i, i + tok.length); i = n.indexOf(tok, i + 1); } }
+  let out = '', open = false;
+  for (let i = 0; i < t.length; i++) {
+    if (marks[i] !== open) { out += marks[i] ? '<mark>' : '</mark>'; open = marks[i]; }
+    out += esc(t[i]);
+  }
+  return out + (open ? '</mark>' : '');
+}
+
+function renderRoster() {
+  const tokens = tokensOf(RF.q), fields = searchFields[RF.in] || searchFields.name;
+  let rows = rosterRows().filter((r) => {
+    if (tokens.length) {
+      const hay = norm(fields.map((f) => r[f]).join(' '));
+      const ok = tokens.every((t) => hay.includes(t) || (RF.in === 'all' && /^\d+$/.test(t) && String(r.n) === t));
+      if (!ok) return false;
+    }
+    if (RF.role === '__unk' ? !r.unk : RF.role && r.roleRaw !== RF.role) return false;
+    if (RF.origin && r.originRaw !== RF.origin) return false;
+    if (RF.status && r.status !== RF.status) return false;
+    if (RF.pinned && PIN_FILTERS[RF.pinned] && !PIN_FILTERS[RF.pinned](r)) return false;
+    if (RF.conf && (RF.conf === 'yes') !== r.conf) return false;
+    return true;
+  });
+  const k = RF.sort, dir = RF.dir;
+  rows.sort((a, b) => {
+    const va = a[k], vb = b[k];
+    if (va == null || va === '') return 1;
+    if (vb == null || vb === '') return -1;
+    return (typeof va === 'string' ? va.localeCompare(vb) : (va > vb) - (va < vb)) * dir || (a.n ?? 999) - (b.n ?? 999);
+  });
+  const total = CHARS.length + board.persons.filter((p) => !charOf(p)).length;
+  $('#rCount').textContent = tr('roster.count', { n: rows.length, total });
+  $('#rHead').innerHTML = `<tr>${R_COLS.map((key) =>
+    `<th ${key ? `data-sort="${key}"` : ''} class="${key === k ? 'sorted' : ''}">${colLabel(key)}${key === k ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr>`;
+  const hf = (f, v) => (fields.includes(f) ? hl(v, tokens) : esc(v));
+  const chip = (p, kind) => `<button class="pchip ${kind}" data-go="${p.id}" data-peek="${p.id}"
+      title="${esc(tr('chip.' + kind, { tag: p.tag || ptag(p) }))}">${kind === 'hyp' ? '?' : '📍'} ${esc(p.tag || ptag(p))}</button>`;
+  $('#rBody').innerHTML = rows.map((r) => `<tr class="${r.pin ? 'pinned' : 'unpinned'}" ${r.pin ? `data-pin="${r.pin.id}"` : ''}>
+      <td class="num">${r.n ?? `<i>${esc(r.tag || '?')}</i>`}</td>
+      <td>${hf('first', r.first)}</td>
+      <td class="last">${hf('last', r.last)}${r.hyp ? `<small class="hyp">${hf('hyp', r.hyp)}</small>` : ''}</td>
+      <td>${hf('role', r.role)}</td>
+      <td>${hf('origin', r.origin)}</td>
+      <td>${r.pin ? `<span class="dot st-${r.status}" style="display:inline-flex;vertical-align:-3px"></span> ${STATUS[r.status]}` : '<span class="muted">—</span>'}</td>
+      <td class="fate">${hf('fate', r.fate)}</td>
+      <td>${r.conf ? '✓' : ''}</td>
+      <td>${r.idPins.map((p) => chip(p, r.unk ? 'pin' : 'id')).join('')}${r.hypPins.map((p) => chip(p, 'hyp')).join('')}</td>
+      <td style="text-align:right;white-space:nowrap">${!r.unk && !r.idPins.length
+        ? `<button class="btn" data-pinchar="${r.n}">${tr('roster.pin')}</button>` : ''}</td>
+    </tr>`).join('') || `<tr><td colspan="${R_COLS.length}" class="muted" style="padding:20px 8px">${tr('roster.none')}</td></tr>`;
+}
+
+// Aperçu de la zone du dessin autour d'une épingle
+function showPeek(p, ev) {
+  const box = peek.querySelector('.peek-img'), W = 300, H = 220, z = 0.6;
+  box.style.backgroundSize = `${IMG_W * z}px ${IMG_H * z}px`;
+  box.style.backgroundPosition = `${W / 2 - p.x * z}px ${H / 2 - p.y * z}px`;
+  const hs = !charOf(p) && hypsOf(p).length ? hypShort(p) : '';
+  peek.querySelector('.peek-cap').innerHTML = `<b>${esc(p.tag || ptag(p))}</b> ${esc(pname(p))}${hs ? ` <small>${esc(hs)}</small>` : ''}`;
+  peek.hidden = false;
+  const r = peek.getBoundingClientRect();
+  let x = ev.clientX + 18, y = ev.clientY + 18;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 18;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 18;
+  peek.style.left = x + 'px'; peek.style.top = y + 'px';
+}
+function hidePeek() { peek.hidden = true; }
+$('#rBody').addEventListener('mousemove', (e) => {
+  const el = e.target.closest('[data-peek]'), p = el && P(el.dataset.peek);
+  p ? showPeek(p, e) : hidePeek();
+});
+$('#rBody').addEventListener('mouseleave', hidePeek);
+
+function goToPin(id) {
+  const p = P(id);
+  if (!p) return;
+  closeRoster(); select('person', p.id); centerOn(p.x, p.y);
+}
+
+function setRF(patch) {
+  Object.assign(RF, patch);
+  prefs.roster = RF; savePrefs();
+  renderRoster();
+}
+for (const [k, s] of Object.entries(RF_INPUTS)) {
+  $(s).addEventListener(k === 'q' ? 'input' : 'change', (e) => setRF({ [k]: e.target.value }));
+}
+$('#rReset').onclick = () => { setRF({ ...RF_DEFAULT }); for (const [k, s] of Object.entries(RF_INPUTS)) $(s).value = RF[k]; };
+$('#rClose').onclick = closeRoster;
+$('#openRoster').onclick = () => (roster.hidden ? openRoster() : closeRoster());
+$('#rHead').addEventListener('click', (e) => {
+  const th = e.target.closest('[data-sort]'); if (!th) return;
+  const key = th.dataset.sort;
+  setRF(RF.sort === key ? { dir: -RF.dir } : { sort: key, dir: key === 'pins' ? -1 : 1 });
+});
+$('#rBody').addEventListener('click', (e) => {
+  const go = e.target.closest('[data-go]');
+  if (go) return goToPin(go.dataset.go);
+  const pc = e.target.closest('[data-pinchar]');
+  if (pc) {
+    closeRoster();
+    setMode('pin');
+    pendingChar = +pc.dataset.pinchar;
+    renderToolbar();
+    return;
+  }
+  const tr_ = e.target.closest('tr[data-pin]');
+  if (tr_) goToPin(tr_.dataset.pin);
+});
+
+/* ======================================================================
+   Clavier
+   ====================================================================== */
+window.addEventListener('keydown', (e) => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName);
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.key.toLowerCase() === 'z' && !typing) { e.preventDefault(); return e.shiftKey ? redo() : undo(); }
+  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); return save(); }
+  if (mod && e.key.toLowerCase() === 'a' && !typing && roster.hidden) { e.preventDefault(); return selectPins(board.persons.map((p) => p.id)); }
+  if (e.key === 'Escape') {
+    if (document.activeElement?.dataset?.combo) return; // géré par le sélecteur
+    if (!roster.hidden) return closeRoster();
+    if (typing) return document.activeElement.blur();
+    if (pendingChar != null) { pendingChar = null; return setMode('select'); }
+    if (linkFrom) { linkFrom = null; renderToolbar(); return renderBoard(); }
+    if (mode !== 'select') return setMode('select');
+    return select(null);
+  }
+  if (typing || mod) return;
+  if (!roster.hidden && e.key.toLowerCase() !== 'r') return;
+  if (e.key === ' ') { spaceDown = true; e.preventDefault(); return; }
+  const k = e.key.toLowerCase();
+  if (k === 'v') setMode('select');
+  else if (k === 'p') setMode('pin');
+  else if (k === 'l') setMode('link');
+  else if (k === 'n') setMode('note');
+  else if (k === 'f') fit();
+  else if (k === 'r') {
+    e.preventDefault(); // sinon le « r » est tapé dans la recherche qui vient de prendre le focus
+    roster.hidden ? openRoster() : closeRoster();
+  }
+  else if (k === '+' || k === '=') zoomCenter(1.3);
+  else if (k === '-') zoomCenter(1 / 1.3);
+  else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteSel(); }
+});
+window.addEventListener('keyup', (e) => { if (e.key === ' ') spaceDown = false; });
+
+/* ======================================================================
+   Démarrage
+   ====================================================================== */
+const img = $('#img');
+function init() {
+  IMG_W = img.naturalWidth || IMG_W; IMG_H = img.naturalHeight || IMG_H;
+  img.width = IMG_W; img.height = IMG_H;
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('obra.view')); } catch {}
+  if (saved && saved.s) { view = saved; applyView(); } else fit();
+}
+applyStaticI18n();
+setStatus('', 'status.loading');
+img.complete ? init() : img.addEventListener('load', init);
+window.addEventListener('resize', () => applyView());
+load();
+</script>
+</body>
+</html>

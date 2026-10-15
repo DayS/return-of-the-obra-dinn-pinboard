@@ -1,0 +1,6 @@
+{
+  "name": "obra-dinn-board",
+  "private": true,
+  "description": "Tableau d'enquête pour Return of the Obra Dinn",
+  "scripts": { "start": "node server.js" }
+}
