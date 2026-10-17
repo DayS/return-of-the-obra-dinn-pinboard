@@ -1,5 +1,7 @@
 # Obra Dinn investigation board
 
+**English** · [Français](README.fr.md)
+
 A local "pin board" to help solve **[Return of the Obra Dinn](https://obradinn.com/)**: pin the crew on the game's group illustration, link people together, take notes, track hypotheses and follow who disappears chapter by chapter.
 
 Everything runs locally: a tiny Node server serves a single HTML page and saves your board to a JSON file on disk. No dependencies, no build step, no account.
