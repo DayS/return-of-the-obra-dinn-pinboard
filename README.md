@@ -6,6 +6,10 @@ Everything runs locally: a tiny Node server serves a single HTML page and saves 
 
 The interface is available in **French and English**.
 
+![The board with unidentified pins, threads between them and sticky notes](docs/screenshot.jpg)
+
+<sub>Example board with placeholder data: pins are left unidentified so the screenshot doesn't spoil any fate.</sub>
+
 ## Features
 
 - **Pins on the illustration**: place a numbered pin on each character, set their status (alive, dead, missing, unknown), their fate, and whether the game confirmed it. Pins and labels scale with zoom so the board stays readable.
