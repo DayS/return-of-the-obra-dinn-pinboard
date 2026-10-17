@@ -1,6 +1,11 @@
 {
   "name": "obra-dinn-board",
+  "version": "1.0.0",
   "private": true,
-  "description": "Tableau d'enquête pour Return of the Obra Dinn",
+  "description": "Local investigation pin board for Return of the Obra Dinn",
+  "license": "MIT",
+  "author": "Damien Villeneuve",
+  "keywords": ["obra-dinn", "pin-board", "investigation", "game"],
+  "engines": { "node": ">=18" },
   "scripts": { "start": "node server.js" }
 }

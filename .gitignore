@@ -3,3 +3,4 @@ node_modules/
 board.backup.json
 *.tmp
 board.json
+bateau/
