@@ -92,8 +92,16 @@ main{display:flex;height:calc(100% - 52px)}
 .pin.st-disparu{--pc:var(--amber);--pt:#fff}
 .pin.ok{opacity:.7;filter:grayscale(.4);transition:opacity .15s}
 .pin.ok.sel,.pin.ok.hov,.pin.ok.from{opacity:1;filter:none}
+.pin.tlout{opacity:.15;filter:grayscale(1)}
+.pin.tlout.sel,.pin.tlout.hov,.pin.tlout.from{opacity:1;filter:none}
 .list li.ok{opacity:.7}
-.pin.sel{outline:3px dashed var(--ink);outline-offset:6px}
+/* sélection : épingle un peu agrandie, anneau jaune + légère onde */
+.pin.sel{z-index:5;transform:translate(-50%,-50%) scale(calc(var(--inv) * 1.15));
+  box-shadow:0 2px 0 #0006,0 0 0 2px #fff,0 0 0 4px #e6b000,0 0 8px 4px #ffd84d66}
+.pin.sel::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid #e6b000;pointer-events:none;
+  animation:selring 2s ease-out infinite}
+@keyframes selring{0%{transform:scale(.9);opacity:.7}70%,100%{transform:scale(1.4);opacity:0}}
+.pin.sel .lbl{box-shadow:0 0 0 2px #e6b000;z-index:1}
 .pin.from{animation:pulse 1s infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 2px var(--paper2),0 0 0 10px #a3241b55}}
 .pin .lbl{
@@ -107,12 +115,11 @@ main{display:flex;height:calc(100% - 52px)}
 /* notes volantes */
 .note{
   position:absolute;width:max-content;max-width:210px;min-width:70px;transform:translate(-50%,0) scale(var(--ns,1)) rotate(var(--rot,-1.5deg));transform-origin:50% 0;
-  background:#f1e7a6;padding:18px 12px 12px;font-size:15px;line-height:1.3;white-space:pre-wrap;word-wrap:break-word;
+  padding:18px 12px 12px;font-size:15px;line-height:1.3;white-space:pre-wrap;word-wrap:break-word;
   box-shadow:2px 4px 10px #0006;cursor:move;color:#2a2a14;min-height:60px
 }
 .note::before{content:"";position:absolute;top:-6px;left:50%;width:14px;height:14px;margin-left:-7px;border-radius:50%;
   background:var(--red);box-shadow:0 2px 0 #0006}
-.note.c-rose{background:#f2c9c2}.note.c-bleu{background:#c8dbe6}.note.c-papier{background:var(--paper2)}
 .note.sel{outline:3px dashed var(--ink);outline-offset:4px}
 .note .empty{opacity:.5;font-style:italic}
 
@@ -177,6 +184,33 @@ textarea.field{min-height:90px;resize:vertical;line-height:1.35}
 .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink);flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--ui);font-size:9px;font-weight:700;background:var(--paper2)}
 .dot.st-vivant{background:var(--green);color:#fff}.dot.st-mort{background:var(--red);color:#fff}.dot.st-disparu{background:var(--amber);color:#fff}
 .list .nm{flex:1}.list .rl{font-style:italic;color:var(--ink2);font-size:14px}
+.gn{font-family:var(--ui);font-size:10px;font-weight:600;letter-spacing:.03em;color:var(--ink2);border:1px solid var(--line);border-radius:3px;padding:0 4px;white-space:nowrap}
+
+/* ---------- Frise des chapitres ---------- */
+.tl{font-family:var(--ui);font-size:12px}
+.tl-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tl-top .check{margin-top:0;font-family:var(--serif)}
+.seg{display:inline-flex;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ink);font:inherit;font-size:12px;padding:3px 8px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--ink)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.tl-bar{display:flex;gap:3px;margin-top:10px}
+.tl-ch{min-width:0;display:flex;flex-direction:column;gap:2px}
+.tl-cn{font-size:10px;font-weight:700;color:var(--ink2);text-align:center;white-space:nowrap;overflow:hidden}
+.tl-parts{display:flex;gap:1px;height:26px}
+.tl-p{flex:1;min-width:0;border:0;padding:0;background:var(--paper2);border-bottom:2px solid var(--line);cursor:pointer;position:relative;display:flex;align-items:flex-end}
+.tl-p i{display:block;width:100%;background:var(--amber);opacity:.75}
+.tl-p.past{background:#d8d8ad}
+.tl-p.cur{background:var(--ink);border-bottom-color:var(--ink)}
+.tl-p.cur i{background:var(--paper);opacity:.9}
+.tl-p:hover{outline:1px solid var(--ink)}
+.tl-p.disp{background-image:repeating-linear-gradient(135deg,transparent 0 3px,#33331926 3px 4px)}
+.tl-range{width:100%;margin:6px 0 2px;accent-color:var(--ink)}
+.tl-cur{font-family:var(--serif);font-size:15px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tl-cur small{font-family:var(--ui);font-size:11px;color:var(--ink2)}
+.tl:not(.on) .tl-bar,.tl:not(.on) .tl-range,.tl:not(.on) .tl-cur{opacity:.55}
+.r-tl{padding:10px 22px 12px;border-bottom:1px solid var(--line)}
+.r-tl .tl-parts{height:30px}
 .legend{display:grid;grid-template-columns:1fr;gap:3px}
 .legend label{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px}
 .legend .sw{width:22px;height:0;border-top:3px solid var(--c)}
@@ -265,6 +299,13 @@ textarea.field{min-height:90px;resize:vertical;line-height:1.35}
 .r-table td.num{font-family:var(--ui);font-size:12px;font-weight:700;width:34px}
 .r-table td.last{font-variant:small-caps;font-size:17px}
 .r-table td.fate{font-style:italic;max-width:320px}
+.r-table td.cn{min-width:220px;width:24%}
+.cnote{display:block;width:100%;box-sizing:border-box;resize:none;overflow:hidden;font:inherit;font-size:15px;line-height:1.3;color:var(--ink);
+  background:transparent;border:1px dashed transparent;border-radius:3px;padding:3px 6px;min-height:28px}
+.r-table tr:hover .cnote,.cnote:focus{border-color:var(--line);background:#fffc}
+.cnote:focus{outline:none;border-style:solid;border-color:var(--ink2)}
+.cnote::placeholder{color:transparent}
+.r-table tr:hover .cnote::placeholder,.cnote:focus::placeholder{color:var(--ink2);opacity:.6}
 .r-table mark{background:#e6c95c;color:inherit;padding:0 1px}
 </style>
 </head>
@@ -341,6 +382,7 @@ textarea.field{min-height:90px;resize:vertical;line-height:1.35}
     <label><span data-i18n="f.conf"></span><select class="field" id="rConf">
       <option value="" data-i18n="opt.all"></option><option value="yes" data-i18n="opt.confYes"></option><option value="no" data-i18n="opt.confNo"></option></select></label>
   </div>
+  <div class="r-tl" id="rTl"></div>
   <div class="r-body"><table class="r-table"><thead id="rHead"></thead><tbody id="rBody"></tbody></table></div>
 </div>
 <div id="peek" hidden><div class="peek-img"></div><div class="peek-cap"></div></div>
@@ -368,7 +410,12 @@ const I18N = {
     'f.role': 'Fonction', 'f.origin': 'Origine', 'f.status': 'Statut', 'f.pinned': 'Épinglé', 'f.conf': 'Confirmé',
     'opt.all': 'Tous', 'opt.allF': 'Toutes', 'opt.pinnedYes': 'Épinglés', 'opt.pinnedNo': 'Non épinglés',
     'opt.confYes': 'Confirmés', 'opt.confNo': 'Non confirmés', 'opt.unidentified': '— Non identifiés —',
-    'col.first': 'Prénom', 'col.last': 'Nom', 'col.role': 'Fonction', 'col.origin': 'Origine', 'col.status': 'Statut', 'col.fate': 'Sort',
+    'col.first': 'Prénom', 'col.last': 'Nom', 'col.role': 'Fonction', 'col.origin': 'Origine', 'col.status': 'Statut', 'col.fate': 'Sort', 'col.gone': 'Disparu', 'p.gone': 'Disparition', 'gone.none': '— Inconnue / aucune —',
+    'gone.part': (p) => `partie ${p.n}`, 'gone.disp': 'Disparitions', 'tl.title': 'Frise des chapitres', 'tl.on': 'Filtrer selon la frise',
+    'tl.present': 'Présents', 'tl.goneBy': 'Disparus jusqu’ici', 'tl.goneAt': 'Disparus ici',
+    'tl.presentTip': 'Encore à bord au début de cette partie', 'tl.goneByTip': 'Disparus pendant ou avant cette partie', 'tl.goneAtTip': 'Disparus pendant cette partie',
+    'tl.count': (p) => `${p.a} encore là · ${p.b} disparu${p.b > 1 ? 's' : ''} avant · ${p.c} sans date`,
+    'tl.part': (p) => `partie ${p.n}/${p.of}`, 'col.cnote': 'Note (fiche)', 'cnote.ph': 'Note sur ce personnage…',
     'roster.count': (p) => `${p.n} / ${p.total} affiché${p.n > 1 ? 's' : ''}`,
     'roster.view': 'Voir', 'roster.pin': '📍 Épingler', 'roster.none': 'Aucun personnage ne correspond aux filtres.',
     'lt.famille': 'Famille / frères', 'lt.rang': 'Même rang', 'lt.groupe': 'Même groupe', 'lt.ami': 'Amis / alliés',
@@ -379,19 +426,19 @@ const I18N = {
     unknown: 'Inconnu', 'note.empty': 'Note vide', unidentified: 'Non identifié',
     'p.identity': 'Identité (registre)', 'p.identityPh': 'Rechercher par n°, prénom, nom, fonction…',
     'p.status': 'Statut',
-    'p.fate': 'Sort / cause', 'p.fatePh': 'ex. Tué par … avec un fusil', 'p.confirmed': 'Sort confirmé par le jeu',
+    'p.fate': 'Sort / cause', 'p.fatePh': 'ex. Tué par … avec un fusil', 'p.confirmed': 'Sort confirmé par le jeu', 'p.confNeedsId': 'Choisis d\'abord une identité',
     'p.notes': 'Indices & notes', 'p.notesPh': 'Accent, chapitre, où on le voit, tatouage…',
     'p.links': 'Liens', 'p.noLinks': 'Aucun lien. Utilisez « Relier à… » puis cliquez une autre épingle.',
     'p.linkTo': '🧶 Relier à…', del: 'Supprimer', edit: 'Modifier',
     'link.title': 'Lien', 'link.type': 'Type', 'link.text': 'Texte du lien', 'link.textPh': 'ex. au mousquet, cousins, même cabine…',
     'link.swap': '⇄ Inverser le sens', quote: (p) => `« ${p.s} »`,
     'note.text': 'Texte', 'note.color': 'Couleur', 'note.size': 'Taille', 'note.smaller': 'Plus petite', 'note.bigger': 'Plus grande',
-    'color.jaune': 'jaune', 'color.rose': 'rose', 'color.bleu': 'bleu', 'color.papier': 'papier',
+    'color.jaune': 'jaune', 'color.orange': 'orange', 'color.rose': 'rose', 'color.vert': 'vert', 'color.bleu': 'bleu', 'color.papier': 'papier',
     'ov.title': 'Épingles',
     'ov.stats': (p) => `${pl(p.pins, 'épinglé')} · ${p.ids}/${p.total} identifiés · ${pl(p.conf, 'confirmé')} · ${pl(p.dead, 'mort')} · ${pl(p.alive, 'vivant')}`,
     'ov.filterPh': 'Filtrer les épingles…', 'ov.roster': '📜 Registre complet', 'ov.noResult': 'Aucun résultat.',
     'ov.empty': 'Choisissez « Personnage » puis cliquez sur un visage du dessin.',
-    'ov.threads': 'Fils affichés', 'ov.showNames': 'Afficher les noms sous les épingles', 'ov.showConfLinks': 'Afficher les liens entre personnages confirmés', 'ov.showFate': 'Afficher le sort sous le nom', 'ov.shortcuts': 'Raccourcis',
+    'ov.threads': 'Fils affichés', 'ov.showNames': 'Afficher les noms sous les épingles', 'ov.showConfLinks': 'Afficher les liens entre personnages confirmés', 'ov.showConfPins': 'Afficher les épingles des personnages confirmés', 'ov.showFate': 'Afficher le sort sous le nom', 'ov.shortcuts': 'Raccourcis',
     'ov.keys': `<b>V</b> sélection · <b>P</b> personnage · <b>L</b> lien · <b>N</b> note · <b>R</b> registre<br>
       <b>Molette</b> zoom · <b>glisser</b> ou <b>Espace</b>+glisser pour se déplacer<br>
       <b>⌫</b> supprimer la sélection · <b>Échap</b> annuler · <b>F</b> tout afficher<br>
@@ -430,7 +477,12 @@ const I18N = {
     'f.role': 'Role', 'f.origin': 'Origin', 'f.status': 'Status', 'f.pinned': 'Pinned', 'f.conf': 'Confirmed',
     'opt.all': 'All', 'opt.allF': 'All', 'opt.pinnedYes': 'Pinned', 'opt.pinnedNo': 'Not pinned',
     'opt.confYes': 'Confirmed', 'opt.confNo': 'Not confirmed', 'opt.unidentified': '— Unidentified —',
-    'col.first': 'First name', 'col.last': 'Last name', 'col.role': 'Role', 'col.origin': 'Origin', 'col.status': 'Status', 'col.fate': 'Fate',
+    'col.first': 'First name', 'col.last': 'Last name', 'col.role': 'Role', 'col.origin': 'Origin', 'col.status': 'Status', 'col.fate': 'Fate', 'col.gone': 'Gone', 'p.gone': 'Disappearance', 'gone.none': '— Unknown / none —',
+    'gone.part': (p) => `part ${p.n}`, 'gone.disp': 'Disappearances', 'tl.title': 'Chapter timeline', 'tl.on': 'Filter by timeline',
+    'tl.present': 'Present', 'tl.goneBy': 'Gone so far', 'tl.goneAt': 'Gone here',
+    'tl.presentTip': 'Still aboard at the start of this part', 'tl.goneByTip': 'Gone during or before this part', 'tl.goneAtTip': 'Gone during this part',
+    'tl.count': (p) => `${p.a} still here · ${p.b} gone before · ${p.c} undated`,
+    'tl.part': (p) => `part ${p.n}/${p.of}`, 'col.cnote': 'Note (record)', 'cnote.ph': 'Note about this character…',
     'roster.count': (p) => `${p.n} / ${p.total} shown`,
     'roster.view': 'View', 'roster.pin': '📍 Pin', 'roster.none': 'No character matches the filters.',
     'lt.famille': 'Family / brothers', 'lt.rang': 'Same rank', 'lt.groupe': 'Same group', 'lt.ami': 'Friends / allies',
@@ -441,19 +493,19 @@ const I18N = {
     unknown: 'Unknown', 'note.empty': 'Empty note', unidentified: 'Unidentified',
     'p.identity': 'Identity (roster)', 'p.identityPh': 'Search by #, first name, last name, role…',
     'p.status': 'Status',
-    'p.fate': 'Fate / cause', 'p.fatePh': 'e.g. Killed by … with a gun', 'p.confirmed': 'Fate confirmed by the game',
+    'p.fate': 'Fate / cause', 'p.fatePh': 'e.g. Killed by … with a gun', 'p.confirmed': 'Fate confirmed by the game', 'p.confNeedsId': 'Pick an identity first',
     'p.notes': 'Clues & notes', 'p.notesPh': 'Accent, chapter, where they appear, tattoo…',
     'p.links': 'Links', 'p.noLinks': 'No links. Use “Link to…” then click another pin.',
     'p.linkTo': '🧶 Link to…', del: 'Delete', edit: 'Edit',
     'link.title': 'Link', 'link.type': 'Type', 'link.text': 'Link text', 'link.textPh': 'e.g. with a musket, cousins, same cabin…',
     'link.swap': '⇄ Reverse direction', quote: (p) => `“${p.s}”`,
     'note.text': 'Text', 'note.color': 'Color', 'note.size': 'Size', 'note.smaller': 'Smaller', 'note.bigger': 'Bigger',
-    'color.jaune': 'yellow', 'color.rose': 'pink', 'color.bleu': 'blue', 'color.papier': 'paper',
+    'color.jaune': 'yellow', 'color.orange': 'orange', 'color.rose': 'pink', 'color.vert': 'green', 'color.bleu': 'blue', 'color.papier': 'paper',
     'ov.title': 'Pins',
     'ov.stats': (p) => `${p.pins} pinned · ${p.ids}/${p.total} identified · ${p.conf} confirmed · ${p.dead} dead · ${p.alive} alive`,
     'ov.filterPh': 'Filter pins…', 'ov.roster': '📜 Full roster', 'ov.noResult': 'No results.',
     'ov.empty': 'Choose “Character”, then click a face on the drawing.',
-    'ov.threads': 'Visible threads', 'ov.showNames': 'Show names under pins', 'ov.showConfLinks': 'Show links between confirmed characters', 'ov.showFate': 'Show fate under the name', 'ov.shortcuts': 'Shortcuts',
+    'ov.threads': 'Visible threads', 'ov.showNames': 'Show names under pins', 'ov.showConfLinks': 'Show links between confirmed characters', 'ov.showConfPins': 'Show pins of confirmed characters', 'ov.showFate': 'Show fate under the name', 'ov.shortcuts': 'Shortcuts',
     'ov.keys': `<b>V</b> select · <b>P</b> character · <b>L</b> link · <b>N</b> note · <b>R</b> roster<br>
       <b>Wheel</b> zoom · <b>drag</b> or <b>Space</b>+drag to pan<br>
       <b>⌫</b> delete selection · <b>Esc</b> cancel · <b>F</b> show all<br>
@@ -546,9 +598,35 @@ for (const [k, v] of Object.entries(LT)) {
 }
 const STATUS = {};
 for (const k of ['inconnu', 'vivant', 'mort', 'disparu']) Object.defineProperty(STATUS, k, { get: () => tr('st.' + k), enumerable: true });
-const NOTE_COLORS = { jaune: '#f1e7a6', rose: '#f2c9c2', bleu: '#c8dbe6', papier: '#f3f3df' };
+// Chapitres du livre de bord (ordre du jeu) et nombre de parties, d'après le wiki fandom
+const CHAPTERS = [
+  { n: 'I', en: 'Loose Cargo', fr: 'Cargaison détachée', parts: 2 },
+  { n: 'II', en: 'A Bitter Cold', fr: 'Un froid mordant', parts: 3 },
+  { n: 'III', en: 'Murder', fr: 'Meurtre', parts: 3 },
+  { n: 'IV', en: 'The Calling', fr: 'L’Appel', parts: 6 },
+  { n: 'V', en: 'Unholy Captives', fr: 'Captifs maudits', parts: 4 },
+  { n: 'VI', en: 'Soldiers of the Sea', fr: 'Soldats de la mer', parts: 8 },
+  { n: 'VII', en: 'The Doom', fr: 'Le Fléau', parts: 8 },
+  { n: 'VIII', en: 'Bargain', fr: 'Le Marché', parts: 5 },
+  { n: 'IX', en: 'Escape', fr: 'La Fuite', parts: 6 },
+  { n: 'X', en: 'The End', fr: 'La Fin', parts: 4 },
+];
+// Parties à plat, clé « chapitre-partie » (ex. 6-3) ; chaque chapitre se termine par sa section « Disparitions » (ex. 6-d)
+const PARTS = CHAPTERS.flatMap((c, ci) => [
+  ...Array.from({ length: c.parts }, (_, k) => ({ key: `${ci + 1}-${k + 1}`, ch: c, part: k + 1, code: k + 1 })),
+  { key: `${ci + 1}-d`, ch: c, part: null, code: 'D', disp: true },
+]);
+const partName = (p) => (p.disp ? tr('gone.disp') : tr('gone.part', { n: p.part }));
+PARTS.forEach((p, i) => { p.i = i + 1; });
+const PART_BY_KEY = new Map(PARTS.map((p) => [p.key, p]));
+const chapTitle = (c) => (lang === 'fr' ? c.fr : c.en);
+const partIdx = (key) => PART_BY_KEY.get(key)?.i ?? null;
+const partShort = (key) => { const p = PART_BY_KEY.get(key); return p ? `${p.ch.n}-${p.code}` : ''; };
+const partLong = (key) => { const p = PART_BY_KEY.get(key); return p ? `${p.ch.n}-${p.code} · ${chapTitle(p.ch)}, ${partName(p)}` : ''; };
 
-let board = { persons: [], links: [], notes: [] };
+const NOTE_COLORS = { jaune: '#f9e463', orange: '#fbb565', rose: '#f7a1b5', vert: '#b2e186', bleu: '#94c8f0', papier: '#f3f3df' };
+
+let board = { persons: [], links: [], notes: [], charNotes: {} };
 let view = { x: 0, y: 0, s: 0.3 };
 let mode = 'select';
 let linkType = 'famille';
@@ -592,6 +670,7 @@ const viewport = $('#viewport'), stage = $('#stage'), svg = $('#links');
 const badgesEl = $('#badges'), pinsEl = $('#pins'), notesEl = $('#notes'), panel = $('#panel');
 
 try { Object.assign(prefs, JSON.parse(localStorage.getItem('obra.prefs') || '{}')); } catch {}
+prefs.tl = { on: false, t: 1, mode: 'present', ...(prefs.tl || {}) };
 const savePrefs = () => { try { localStorage.setItem('obra.prefs', JSON.stringify(prefs)); } catch {} };
 lang = prefs.lang || (/^fr\b/i.test(navigator.language) ? 'fr' : 'en');
 
@@ -655,7 +734,9 @@ async function load() {
   try {
     const r = await fetch('/api/board', { cache: 'no-store' });
     const d = await r.json();
-    board = { persons: d.persons || [], links: d.links || [], notes: d.notes || [] };
+    board = { persons: d.persons || [], links: d.links || [], notes: d.notes || [], charNotes: d.charNotes || {} };
+    // Seul un personnage identifié peut être confirmé
+    for (const p of board.persons) if (p.confirmed && p.charId == null) p.confirmed = false;
     // Anciennes notes : position = coin haut-gauche, taille liée au zoom → punaise + taille figée au zoom courant
     let vs = view.s;
     try { vs = JSON.parse(localStorage.getItem('obra.view'))?.s || vs; } catch {}
@@ -735,6 +816,77 @@ function focusSet() {
   return new Set(hoverId ? [hoverId] : selPinIds());
 }
 
+/* Frise : moment courant (index de partie) et filtre présents / disparus */
+function tlMatch(key) {
+  const i = partIdx(key), { t, mode } = prefs.tl;
+  if (mode === 'goneBy') return i != null && i <= t;
+  if (mode === 'goneAt') return i === t;
+  return i == null || i >= t; // présents : encore à bord au début de la partie
+}
+function goneOptions(cur) {
+  return `<option value="" ${cur ? '' : 'selected'}>${tr('gone.none')}</option>` + CHAPTERS.map((c, ci) =>
+    `<optgroup label="${c.n} · ${esc(chapTitle(c))}">${PARTS.filter((p) => p.ch === c).map((p) =>
+      `<option value="${p.key}" ${cur === p.key ? 'selected' : ''}>${c.n}-${p.code} · ${partName(p)}</option>`).join('')}</optgroup>`).join('');
+}
+function tlCurHTML() {
+  const { t } = prefs.tl, p = PARTS[t - 1];
+  let a = 0, b = 0, c = 0;
+  for (const q of board.persons) { const i = partIdx(q.gone); if (i == null) c++; else if (i >= t) a++; else b++; }
+  return `<span><b>${p.ch.n}</b> ${esc(chapTitle(p.ch))} <small>${p.disp ? partName(p) : tr('tl.part', { n: p.part, of: p.ch.parts })}</small></span>
+    <small>${tr('tl.count', { a, b, c })}</small>`;
+}
+function tlHTML() {
+  const tl = prefs.tl, counts = new Map();
+  for (const p of board.persons) { const i = partIdx(p.gone); if (i) counts.set(i, (counts.get(i) || 0) + 1); }
+  const max = Math.max(1, ...counts.values());
+  return `<div class="tl ${tl.on ? 'on' : ''}">
+    <div class="tl-top"><label class="check"><input type="checkbox" data-tl-on ${tl.on ? 'checked' : ''}> ${tr('tl.on')}</label>
+      <span class="seg">${['present', 'goneBy', 'goneAt'].map((m) =>
+        `<button data-tl-mode="${m}" class="${tl.mode === m ? 'on' : ''}" title="${tr('tl.' + m + 'Tip')}">${tr('tl.' + m)}</button>`).join('')}</span></div>
+    <div class="tl-bar">${CHAPTERS.map((c) => `<div class="tl-ch" style="flex:${c.parts + 1}"><span class="tl-cn" title="${esc(chapTitle(c))}">${c.n}</span>
+      <div class="tl-parts">${PARTS.filter((p) => p.ch === c).map((p) => { const n = counts.get(p.i) || 0;
+        return `<button class="tl-p ${p.disp ? 'disp' : ''} ${p.i === tl.t ? 'cur' : ''} ${p.i < tl.t ? 'past' : ''}" data-tl-t="${p.i}"
+          title="${esc(partLong(p.key))}${n ? ` — ${n}` : ''}">${n ? `<i style="height:${Math.round(25 + 75 * n / max)}%"></i>` : ''}</button>`; }).join('')}</div></div>`).join('')}</div>
+    <input type="range" class="tl-range" min="1" max="${PARTS.length}" value="${tl.t}" data-tl-range>
+    <div class="tl-cur">${tlCurHTML()}</div>
+  </div>`;
+}
+// Met à jour les frises en place (pas de re-rendu : le curseur reste saisissable) puis les vues filtrées
+function setTl(patch) {
+  Object.assign(prefs.tl, patch); savePrefs();
+  const tl = prefs.tl;
+  document.querySelectorAll('.tl').forEach((el) => {
+    el.classList.toggle('on', tl.on);
+    el.querySelector('[data-tl-on]').checked = tl.on;
+    el.querySelector('[data-tl-range]').value = tl.t;
+    el.querySelectorAll('[data-tl-mode]').forEach((b) => b.classList.toggle('on', b.dataset.tlMode === tl.mode));
+    el.querySelectorAll('[data-tl-t]').forEach((b) => { const i = +b.dataset.tlT; b.classList.toggle('cur', i === tl.t); b.classList.toggle('past', i < tl.t); });
+    el.querySelector('.tl-cur').innerHTML = tlCurHTML();
+  });
+  renderBoard();
+  const ul = $('#ovList'); if (ul) ul.innerHTML = ovListHTML();
+  if (!roster.hidden) renderRoster();
+}
+document.addEventListener('input', (e) => { if (e.target.matches('[data-tl-range]')) setTl({ t: +e.target.value, on: true }); });
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (!(t instanceof Element) || !t.closest('.tl')) return;
+  if (t.matches('[data-tl-on]')) return setTl({ on: t.checked });
+  const m = t.closest('[data-tl-mode]'); if (m) return setTl({ mode: m.dataset.tlMode, on: true });
+  const p = t.closest('[data-tl-t]'); if (p) return setTl({ t: +p.dataset.tlT, on: true });
+});
+
+// Épingle confirmée masquée par l'option, sauf si sélectionnée (ex. depuis le registre)
+// ou reliée par un fil visible à un personnage non confirmé
+function pinHidden(p) {
+  if (!prefs.hideConfirmedPins || !p?.confirmed || isPinSel(p.id)) return false;
+  return !board.links.some((l) => {
+    if (prefs.hidden.includes(l.type)) return false;
+    const other = l.from === p.id ? P(l.to) : l.to === p.id ? P(l.from) : null;
+    return other && !other.confirmed;
+  });
+}
+
 function renderBoard() {
   const focus = focusSet();
   const hidden = new Set(prefs.hidden);
@@ -742,6 +894,7 @@ function renderBoard() {
   for (const l of board.links) {
     if (hidden.has(l.type)) continue;
     if (prefs.hideConfirmedLinks && P(l.from)?.confirmed && P(l.to)?.confirmed) continue;
+    if (pinHidden(P(l.from)) || pinHidden(P(l.to))) continue;
     const t = LT[l.type] || LT.texte, g = linkGeom(l);
     if (!g) continue;
     const isSel = sel?.kind === 'link' && sel.id === l.id;
@@ -758,9 +911,9 @@ function renderBoard() {
   svg.innerHTML = paths + '<path class="rubber" id="rubber" d=""/>';
   badgesEl.innerHTML = badges;
 
-  pinsEl.innerHTML = board.persons.map((p) => {
+  pinsEl.innerHTML = board.persons.filter((p) => !pinHidden(p)).map((p) => {
     const c = charOf(p), name = c ? fullName(c) : p.name, role = c ? roleL(c.role) : hypShort(p), nh = c ? 0 : hypsOf(p).length;
-    return `<div class="pin st-${p.status || 'inconnu'} ${p.confirmed ? 'ok' : ''} ${c ? '' : 'unk'}
+    return `<div class="pin st-${p.status || 'inconnu'} ${p.confirmed ? 'ok' : ''} ${c ? '' : 'unk'} ${prefs.tl.on && !tlMatch(p.gone) ? 'tlout' : ''}
       ${isPinSel(p.id) ? 'sel' : ''} ${linkFrom === p.id ? 'from' : ''} ${hoverId === p.id ? 'hov' : ''}"
       data-id="${p.id}" style="left:${p.x}px;top:${p.y}px" title="${esc(pname(p))}${role ? ' — ' + esc(role) : ''}">
       ${esc(ptag(p))}${nh ? `<span class="hc">${nh}?</span>` : ''}
@@ -773,7 +926,7 @@ function renderBoard() {
   }).join('');
 
   notesEl.innerHTML = board.notes.map((n) => `<div class="note c-${n.color || 'jaune'} ${sel?.kind === 'note' && sel.id === n.id ? 'sel' : ''}"
-      data-id="${n.id}" style="left:${n.x}px;top:${n.y}px;--ns:${n.s};--rot:${n.rot ?? -1.5}deg">${n.text ? esc(n.text) : `<span class="empty">${tr('note.empty')}</span>`}</div>`).join('');
+      data-id="${n.id}" style="left:${n.x}px;top:${n.y}px;background:${NOTE_COLORS[n.color] || NOTE_COLORS.jaune};--ns:${n.s};--rot:${n.rot ?? -1.5}deg">${n.text ? esc(n.text) : `<span class="empty">${tr('note.empty')}</span>`}</div>`).join('');
 }
 
 /* ======================================================================
@@ -791,8 +944,9 @@ function renderMulti() {
   const hypCount = new Map();
   ps.forEach((p) => hypsOf(p).forEach((h) => hypCount.set(h, (hypCount.get(h) || 0) + 1)));
   const common = (f, d = '') => { const v = new Set(ps.map((p) => p[f] || d)); return v.size === 1 ? [...v][0] : null; };
-  const st = common('status', 'inconnu'), fate = common('fate');
-  const confAll = ps.every((p) => p.confirmed), confSome = ps.some((p) => p.confirmed);
+  const st = common('status', 'inconnu'), fate = common('fate'), gone = common('gone');
+  const idPs = ps.filter((p) => p.charId != null);
+  const confAll = idPs.length > 0 && idPs.every((p) => p.confirmed), confSome = idPs.some((p) => p.confirmed);
   panel.innerHTML = `
     <h2>${tr('m.title', { n })}</h2>
     <p class="sub">${tr('m.hint')}</p>
@@ -801,10 +955,12 @@ function renderMulti() {
     <label class="f">${tr('p.status')}</label>
     <select class="field" id="mStatus">${st ? '' : `<option value="" selected>${tr('m.mixed')}</option>`}
       ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${st === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+    <label class="f">${tr('p.gone')}</label>
+    <select class="field" id="mGone">${gone === null ? `<option value="__mixed" selected>${tr('m.mixed')}</option>` : ''}${goneOptions(gone)}</select>
     <label class="f">${tr('p.fate')}</label>
     <div class="idrow"><input class="field" id="mFate" value="${esc(fate ?? '')}" placeholder="${fate === null ? tr('m.mixed') : tr('p.fatePh')}">
       <button class="btn" id="mFateApply">${tr('m.apply')}</button></div>
-    <label class="check"><input type="checkbox" id="mConf" ${confAll ? 'checked' : ''}> ${tr('p.confirmed')}</label>
+    <label class="check" ${idPs.length ? '' : `title="${tr('p.confNeedsId')}" style="opacity:.5"`}><input type="checkbox" id="mConf" ${confAll ? 'checked' : ''} ${idPs.length ? '' : 'disabled'}> ${tr('p.confirmed')}</label>
     <label class="f">${tr('p.hyps')}</label>
     ${hypCount.size ? `<div class="chips">${[...hypCount].sort((a, b) => b[1] - a[1] || a[0] - b[0]).map(([h, c]) => `<span class="chip">
       <b>${h}</b> ${esc(fullName(CH.get(h)))} <small>${c}/${n}</small>${pinsOf(h).length ? ` <span title="${esc(tr('combo.already'))}">📍 ${esc(pinsOf(h).map((p) => p.tag || ptag(p)).join(', '))}</span>` : ''}
@@ -845,7 +1001,7 @@ function renderPanel() {
       <label class="f">${tr('p.hyps')} (${hyps.length})</label>
       ${hyps.length ? `<div class="chips">${hyps.map((n) => {
         const h = CH.get(n), elsewhere = pinsOf(n).some((q) => q.id !== o.id);
-        return `<span class="chip"><b>${n}</b> ${esc(fullName(h))} <small>${esc(roleL(h.role))}</small>
+        return `<span class="chip"><b>${n}</b> ${esc(fullName(h))} <small>${esc(roleL(h.role))} · ${esc(originL(h.origin))}</small>
           ${elsewhere ? `<span title="${tr('combo.already')}">📍</span>` : ''}
           <button data-promote="${n}" title="${tr('hyp.promote')}">✓</button><button data-unhyp="${n}" title="${tr('hyp.remove')}">×</button></span>`;
       }).join('')}</div>` : ''}
@@ -857,9 +1013,10 @@ function renderPanel() {
         <div><label class="f">${tr('p.status')}</label><select class="field" data-f="status">
           ${Object.entries(STATUS).map(([k, v]) => `<option value="${k}" ${(o.status || 'inconnu') === k ? 'selected' : ''}>${v}</option>`).join('')}
         </select></div>
+        <div><label class="f">${tr('p.gone')}</label><select class="field" data-f="gone">${goneOptions(o.gone)}</select></div>
       </div>
       <label class="f">${tr('p.fate')}</label><input class="field" data-f="fate" value="${esc(o.fate)}" placeholder="${tr('p.fatePh')}">
-      <label class="check"><input type="checkbox" data-f="confirmed" ${o.confirmed ? 'checked' : ''}> ${tr('p.confirmed')}</label>
+      <label class="check" ${o.charId != null ? '' : `title="${tr('p.confNeedsId')}" style="opacity:.5"`}><input type="checkbox" data-f="confirmed" ${o.confirmed ? 'checked' : ''} ${o.charId != null ? '' : 'disabled'}> ${tr('p.confirmed')}</label>
       <label class="f">${tr('p.notes')}</label><textarea class="field" data-f="notes" placeholder="${tr('p.notesPh')}">${esc(o.notes)}</textarea>
 
       <h3>${tr('p.links')} (${links.length})</h3>
@@ -890,7 +1047,6 @@ function renderPanel() {
     panel.innerHTML = `
       <h2>🗒 Note</h2>
       <label class="f">${tr('note.text')}</label><textarea class="field" data-f="text" id="ftext" style="min-height:160px">${esc(o.text)}</textarea>
-      <label class="f">${tr('note.color')}</label>
       <label class="f">${tr('note.size')}</label>
       <div class="swatches"><button class="btn" data-nsize="0.8" title="${tr('note.smaller')}">−</button><button class="btn" data-nsize="1.25" title="${tr('note.bigger')}">+</button></div>
       <label class="f">${tr('note.color')}</label>
@@ -899,11 +1055,20 @@ function renderPanel() {
   }
 }
 
-function renderOverview() {
+function ovListHTML() {
   const q = norm(search.trim());
   const people = board.persons
+    .filter((p) => !prefs.tl.on || tlMatch(p.gone))
     .filter((p) => { const c = charOf(p); return !q || norm([pname(p), p.name, c && charHay(c), ...hypsOf(p).map((n) => charHay(CH.get(n))), p.fate, p.notes].join(' ')).includes(q); })
     .sort((a, b) => (charOf(a)?.n ?? 999) - (charOf(b)?.n ?? 999) || pname(a).localeCompare(pname(b)));
+  return people.map((p) => `<li data-goto="${p.id}" class="${p.confirmed ? 'ok' : ''}">
+        <span class="dot st-${p.status || 'inconnu'}">${esc(ptag(p))}</span>
+        <span class="nm">${esc(pname(p))}${p.confirmed ? ' ✓' : ''}</span><span class="rl">${esc(charOf(p) ? roleL(charOf(p).role) : hypShort(p))}</span>
+        ${partIdx(p.gone) ? `<span class="gn" title="${esc(partLong(p.gone))}">${partShort(p.gone)}</span>` : ''}</li>`).join('')
+      || `<li class="muted" style="cursor:default">${board.persons.length ? tr('ov.noResult') : tr('ov.empty')}</li>`;
+}
+
+function renderOverview() {
   const count = (s) => board.persons.filter((p) => (p.status || 'inconnu') === s).length;
   const confirmed = board.persons.filter((p) => p.confirmed).length;
   const identified = new Set(board.persons.filter(charOf).map((p) => +p.charId)).size;
@@ -914,17 +1079,16 @@ function renderOverview() {
     <p class="sub">${tr('ov.stats', { pins: board.persons.length, ids: identified, total: CHARS.length || 60, conf: confirmed, dead: count('mort'), alive: count('vivant') })}</p>
     <div class="row"><input class="field" id="search" placeholder="${tr('ov.filterPh')}" value="${esc(search)}">
       <button class="btn" id="openRoster2" style="flex:0 0 auto;margin-top:3px">${tr('ov.roster')}</button></div>
-    <ul class="list" style="margin-top:8px">${people.map((p) => `<li data-goto="${p.id}" class="${p.confirmed ? 'ok' : ''}">
-        <span class="dot st-${p.status || 'inconnu'}">${esc(ptag(p))}</span>
-        <span class="nm">${esc(pname(p))}${p.confirmed ? ' ✓' : ''}</span><span class="rl">${esc(charOf(p) ? roleL(charOf(p).role) : hypShort(p))}</span></li>`).join('')
-      || `<li class="muted" style="cursor:default">${board.persons.length ? tr('ov.noResult') : tr('ov.empty')}</li>`}</ul>`, true)
+    <ul class="list" id="ovList" style="margin-top:8px">${ovListHTML()}</ul>`, true)
+  + sec('timeline', tr('tl.title'), tlHTML())
   + sec('threads', tr('ov.threads'), `
     <div class="legend">${Object.entries(LT).map(([k, v]) => `<label style="--c:${v.color}">
         <input type="checkbox" data-vis="${k}" ${prefs.hidden.includes(k) ? '' : 'checked'}>
         <span class="sw ${v.dashed ? 'dashed' : ''}"></span>${v.icon} ${v.label}</label>`).join('')}</div>
     <label class="check"><input type="checkbox" id="showNames" ${prefs.showNames ? 'checked' : ''}> ${tr('ov.showNames')}</label>
     <label class="check"><input type="checkbox" id="showFate" ${prefs.showFate ? 'checked' : ''}> ${tr('ov.showFate')}</label>
-    <label class="check"><input type="checkbox" id="showConfLinks" ${prefs.hideConfirmedLinks ? '' : 'checked'}> ${tr('ov.showConfLinks')}</label>`)
+    <label class="check"><input type="checkbox" id="showConfLinks" ${prefs.hideConfirmedLinks ? '' : 'checked'}> ${tr('ov.showConfLinks')}</label>
+    <label class="check"><input type="checkbox" id="showConfPins" ${prefs.hideConfirmedPins ? '' : 'checked'}> ${tr('ov.showConfPins')}</label>`)
   + sec('shortcuts', tr('ov.shortcuts'), `<div class="kbd">${tr('ov.keys')}</div>`);
 }
 panel.addEventListener('toggle', (e) => {
@@ -952,7 +1116,10 @@ function renderToolbar() {
   $('#hint').textContent = hints[mode];
 }
 
-function renderAll() { renderBoard(); renderPanel(); renderToolbar(); updateUndoButtons(); }
+function renderAll() {
+  renderBoard(); renderPanel(); renderToolbar(); updateUndoButtons();
+  if (!roster.hidden && !document.activeElement?.classList.contains('cnote')) renderRoster();
+}
 
 /* ======================================================================
    Actions
@@ -1120,7 +1287,7 @@ window.addEventListener('pointerup', (e) => {
     $('#marquee').hidden = true;
     if (!d.moved) return;
     const m = marqueeRect(d, e), a = toImg(m.x1, m.y1), b = toImg(m.x2, m.y2);
-    const inside = board.persons.filter((p) => p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y).map((p) => p.id);
+    const inside = board.persons.filter((p) => !pinHidden(p) && p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y).map((p) => p.id);
     selectPins([...d.base, ...inside]);
   }
   if (d.type === 'altlink') {
@@ -1225,6 +1392,7 @@ panel.addEventListener('input', onField);
 
 panel.addEventListener('input', (e) => {
   if (e.target.id === 'mStatus' && e.target.value) { const v = e.target.value; return forSelected((p) => { p.status = v; }); }
+  if (e.target.id === 'mGone' && e.target.value !== '__mixed') { const v = e.target.value; return forSelected((p) => { p.gone = v; }); }
   if (e.target.id === 'search') {
     search = e.target.value;
     const pos = e.target.selectionStart;
@@ -1243,7 +1411,7 @@ panel.addEventListener('click', (e) => {
     if (un) return togglePin(un.dataset.unsel);
     if (ha) { const h = +ha.dataset.mhypadd; return forSelected((p) => addHyp(p, h)); }
     if (hd) { const h = +hd.dataset.mhypdel; return forSelected((p) => { p.hyps = hypsOf(p).filter((x) => x !== h); }); }
-    if (t.id === 'mConf') { const v = t.checked; return forSelected((p) => { p.confirmed = v; }); }
+    if (t.id === 'mConf') { const v = t.checked; return forSelected((p) => { if (p.charId != null) p.confirmed = v; }); }
     if (t.id === 'mFateApply') { const v = $('#mFate').value; return forSelected((p) => { p.fate = v; }); }
   }
   const go = t.closest('[data-goto]');
@@ -1260,6 +1428,7 @@ panel.addEventListener('click', (e) => {
   if (t.id === 'showNames') { prefs.showNames = t.checked; savePrefs(); return renderBoard(); }
   if (t.id === 'showFate') { prefs.showFate = t.checked; savePrefs(); return renderBoard(); }
   if (t.id === 'showConfLinks') { prefs.hideConfirmedLinks = !t.checked; savePrefs(); return renderBoard(); }
+  if (t.id === 'showConfPins') { prefs.hideConfirmedPins = !t.checked; savePrefs(); return renderBoard(); }
   if (t.id === 'openRoster2') return openRoster();
   const pr = t.closest('[data-promote]'), uh = t.closest('[data-unhyp]');
   if (pr) {
@@ -1267,7 +1436,7 @@ panel.addEventListener('click', (e) => {
     return mutate(() => { const o = selObj(), h = hypsOf(o).filter((x) => x !== n); if (o.charId) h.unshift(+o.charId); o.hyps = h; o.charId = n; });
   }
   if (uh) return mutate(() => { const o = selObj(); o.hyps = hypsOf(o).filter((x) => x !== +uh.dataset.unhyp); });
-  if (t.closest('[data-tohyp]')) return mutate(() => { const o = selObj(); o.hyps = [+o.charId, ...hypsOf(o)]; o.charId = null; });
+  if (t.closest('[data-tohyp]')) return mutate(() => { const o = selObj(); o.hyps = [+o.charId, ...hypsOf(o)]; o.charId = null; o.confirmed = false; });
   if (t.id === 'del') return deleteSel();
   if (t.id === 'desel') return select(null);
   if (t.id === 'swap') return mutate(() => { const l = selObj(); [l.from, l.to] = [l.to, l.from]; });
@@ -1335,7 +1504,7 @@ function chooseCombo(i) {
   if (combo.which === 'id') {
     $('#comboInput').blur();
     const id = c ? c.n : null;
-    if ((o.charId ?? null) !== id) mutate(() => { o.charId = id; o.hyps = hypsOf(o).filter((n) => n !== id); });
+    if ((o.charId ?? null) !== id) mutate(() => { o.charId = id; o.hyps = hypsOf(o).filter((n) => n !== id); if (id == null) o.confirmed = false; });
   } else {
     mutate(() => { o.hyps = [...hypsOf(o), c.n]; });
     setTimeout(() => $('#hypInput')?.focus(), 0); // pour enchaîner plusieurs hypothèses
@@ -1383,7 +1552,7 @@ const RF_DEFAULT = { q: '', in: 'name', role: '', origin: '', status: '', pinned
 let RF = { ...RF_DEFAULT, ...(prefs.roster || {}) };
 if (RF.pinned === 'yes') RF.pinned = 'any'; // ancienne valeur
 const RF_INPUTS = { q: '#rQ', in: '#rIn', role: '#rRole', origin: '#rOrigin', status: '#rStatus', pinned: '#rPinned', conf: '#rConf' };
-const R_COLS = ['n', 'first', 'last', 'role', 'origin', 'status', 'fate', 'conf', 'pins', null];
+const R_COLS = ['n', 'first', 'last', 'role', 'origin', 'status', 'fate', 'gone', 'conf', 'pins', 'cnote', null];
 const colLabel = (k) => (k === 'n' ? '#' : k === 'conf' ? '✓' : k ? tr('col.' + k) : '');
 
 function fillRosterSelects() {
@@ -1396,6 +1565,7 @@ function fillRosterSelects() {
   $('#rOrigin').innerHTML = `<option value="">${tr('opt.allF')}</option>` + opts(counts('origin'), originL, true);
   $('#rStatus').innerHTML = `<option value="">${tr('opt.all')}</option>` + Object.entries(STATUS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
   for (const [k, sel] of Object.entries(RF_INPUTS)) $(sel).value = RF[k];
+  $('#rTl').innerHTML = tlHTML();
 }
 function openRoster() {
   roster.hidden = false;
@@ -1410,15 +1580,15 @@ function rosterRows() {
     const idPins = pinsOf(c.n), hypPins = hypPinsOf(c.n), p = idPins[0];
     return { n: c.n, first: c.first, last: c.last, role: roleL(c.role), origin: originL(c.origin), roleRaw: c.role, originRaw: c.origin,
       pin: p, idPins, hypPins, pins: idPins.length * 100 + hypPins.length,
-      status: p?.status || 'inconnu', fate: p?.fate || '', conf: !!p?.confirmed, notes: p?.notes || '' };
+      status: p?.status || 'inconnu', fate: p?.fate || '', gone: partIdx(p?.gone), conf: !!p?.confirmed, notes: p?.notes || '', cnote: board.charNotes?.[c.n] || '' };
   });
   for (const p of board.persons.filter((p) => !charOf(p))) {
     rows.push({ n: null, tag: p.tag, first: '', last: p.name || `${tr('unknown')} ${p.tag || ''}`, hyp: hypShort(p), role: '', origin: '',
-      pin: p, idPins: [p], hypPins: [], pins: 100, status: p.status || 'inconnu', fate: p.fate || '', conf: !!p.confirmed, notes: p.notes || '', unk: true });
+      pin: p, idPins: [p], hypPins: [], pins: 100, status: p.status || 'inconnu', fate: p.fate || '', gone: partIdx(p.gone), conf: !!p.confirmed, notes: p.notes || '', unk: true });
   }
   return rows;
 }
-const searchFields = { name: ['first', 'last'], first: ['first'], last: ['last'], all: ['first', 'last', 'role', 'origin', 'fate', 'notes', 'hyp'] };
+const searchFields = { name: ['first', 'last'], first: ['first'], last: ['last'], all: ['first', 'last', 'role', 'origin', 'fate', 'notes', 'hyp', 'cnote'] };
 const PIN_FILTERS = {
   id: (r) => !r.unk && r.idPins.length > 0,
   hyp: (r) => r.hypPins.length > 0 || (r.unk && !!r.hyp),
@@ -1453,6 +1623,7 @@ function renderRoster() {
     if (RF.status && r.status !== RF.status) return false;
     if (RF.pinned && PIN_FILTERS[RF.pinned] && !PIN_FILTERS[RF.pinned](r)) return false;
     if (RF.conf && (RF.conf === 'yes') !== r.conf) return false;
+    if (prefs.tl.on && !tlMatch(r.gone ? PARTS[r.gone - 1].key : null)) return false;
     return true;
   });
   const k = RF.sort, dir = RF.dir;
@@ -1477,12 +1648,28 @@ function renderRoster() {
       <td>${hf('origin', r.origin)}</td>
       <td>${r.pin ? `<span class="dot st-${r.status}" style="display:inline-flex;vertical-align:-3px"></span> ${STATUS[r.status]}` : '<span class="muted">—</span>'}</td>
       <td class="fate">${hf('fate', r.fate)}</td>
+      <td>${r.gone ? `<span class="gn" title="${esc(partLong(PARTS[r.gone - 1].key))}">${partShort(PARTS[r.gone - 1].key)}</span>` : ''}</td>
       <td>${r.conf ? '✓' : ''}</td>
       <td>${r.idPins.map((p) => chip(p, r.unk ? 'pin' : 'id')).join('')}${r.hypPins.map((p) => chip(p, 'hyp')).join('')}</td>
+      <td class="cn">${r.unk ? '' : `<textarea class="cnote" rows="1" data-cnote="${r.n}" placeholder="${tr('cnote.ph')}">${esc(r.cnote)}</textarea>`}</td>
       <td style="text-align:right;white-space:nowrap">${!r.unk && !r.idPins.length
         ? `<button class="btn" data-pinchar="${r.n}">${tr('roster.pin')}</button>` : ''}</td>
     </tr>`).join('') || `<tr><td colspan="${R_COLS.length}" class="muted" style="padding:20px 8px">${tr('roster.none')}</td></tr>`;
+  $('#rBody').querySelectorAll('.cnote').forEach(growNote);
 }
+
+// Note de fiche personnage (indépendante des notes d'épingle), stockée par n° de personnage
+function growNote(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
+let cnoteSnap = null;
+$('#rBody').addEventListener('focusin', (e) => { if (e.target.dataset.cnote) cnoteSnap = snap(); });
+$('#rBody').addEventListener('input', (e) => {
+  const t = e.target, n = t.dataset.cnote;
+  if (!n) return;
+  if (cnoteSnap) { pushUndo(cnoteSnap); cnoteSnap = null; }
+  board.charNotes ||= {};
+  if (t.value.trim()) board.charNotes[n] = t.value; else delete board.charNotes[n];
+  growNote(t); scheduleSave();
+});
 
 // Aperçu de la zone du dessin autour d'une épingle
 function showPeek(p, ev) {
@@ -1528,6 +1715,7 @@ $('#rHead').addEventListener('click', (e) => {
   setRF(RF.sort === key ? { dir: -RF.dir } : { sort: key, dir: key === 'pins' ? -1 : 1 });
 });
 $('#rBody').addEventListener('click', (e) => {
+  if (e.target.closest('.cnote')) return;
   const go = e.target.closest('[data-go]');
   if (go) return goToPin(go.dataset.go);
   const pc = e.target.closest('[data-pinchar]');
@@ -1553,6 +1741,7 @@ window.addEventListener('keydown', (e) => {
   if (mod && e.key.toLowerCase() === 'a' && !typing && roster.hidden) { e.preventDefault(); return selectPins(board.persons.map((p) => p.id)); }
   if (e.key === 'Escape') {
     if (document.activeElement?.dataset?.combo) return; // géré par le sélecteur
+    if (document.activeElement?.classList.contains('cnote')) return document.activeElement.blur();
     if (!roster.hidden) return closeRoster();
     if (typing) return document.activeElement.blur();
     if (pendingChar != null) { pendingChar = null; return setMode('select'); }
