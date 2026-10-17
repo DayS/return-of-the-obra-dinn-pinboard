@@ -31,8 +31,8 @@ L'interface est disponible en **français et en anglais**.
 ## Démarrage
 
 ```sh
-git clone https://github.com/<votre-compte>/obra-dinn-board.git
-cd obra-dinn-board
+git clone https://github.com/DayS/return-of-the-obra-dinn-pinboard.git
+cd return-of-the-obra-dinn-pinboard
 npm start
 ```
 

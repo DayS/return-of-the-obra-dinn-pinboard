@@ -1,11 +1,28 @@
 {
-  "name": "obra-dinn-board",
+  "name": "return-of-the-obra-dinn-pinboard",
   "version": "1.0.0",
   "private": true,
   "description": "Local investigation pin board for Return of the Obra Dinn",
   "license": "MIT",
   "author": "Damien Villeneuve",
-  "keywords": ["obra-dinn", "pin-board", "investigation", "game"],
-  "engines": { "node": ">=18" },
-  "scripts": { "start": "node server.js" }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DayS/return-of-the-obra-dinn-pinboard.git"
+  },
+  "homepage": "https://github.com/DayS/return-of-the-obra-dinn-pinboard#readme",
+  "bugs": {
+    "url": "https://github.com/DayS/return-of-the-obra-dinn-pinboard/issues"
+  },
+  "keywords": [
+    "obra-dinn",
+    "pin-board",
+    "investigation",
+    "game"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
 }
